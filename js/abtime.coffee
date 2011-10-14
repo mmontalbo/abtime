@@ -1,32 +1,36 @@
-class AbExerciseCollection extends Backbone.Collection
-  url : 'js/exercises.json'
+$(document).ready ->
+  class AbExerciseCollection extends Backbone.Collection
+    url : 'js/exercises.json'
 
-AbExercises = new AbExerciseCollection
-AbExercises.fetch()
+    getExercises : (n) =>
+      if n <= 0
+        return []
 
-###
+      exercises = (@at(i % @length) for i in [0..n-1])
+      return exercises
+
   class AbExerciseView extends Backbone.View
-    initialize: ->
-      continue
 
-    events:
-      "click #send_feedback" : "send_feedback"
+  class AbExerciseProgressView extends Backbone.View
 
   class WorkoutProgressView extends Backbone.View
     initialize: ->
-      continue
+      @workoutExercises = @options.workoutExercises
+      @abExerciseProgressViews = (@create_exercise_progress_view(@workoutExercises[i],i) for i in [0..@workoutExercises.length-1])
 
-    events:
-      "click #send_feedback" : "send_feedback"
+    create_exercise_progress_view: (exercise, i) =>
+      return new AbExerciseProgressView(el: $('#timeline_exercise'+i))
 
-  class AbExerciseProgressView extends Backbone.View
-    initialize: ->
-      continue
-
-    events:
-      "click #send_feedback" : "send_feedback"
-
+  NUM_EXERCISES_IN_WORKOUT = 10
   class AbTimeApp extends Backbone.Router
     initialize: ->
-      continue
-###
+      @abExcericseCollection = new AbExerciseCollection
+      @abExcericseCollection.bind("reset",@populateViews)
+      @abExcericseCollection.fetch()
+
+    populateViews: =>
+      workoutExercises = @abExcericseCollection.getExercises(NUM_EXERCISES_IN_WORKOUT)
+      @workoutProgressView = new WorkoutProgressView(el: $('#timeline'), workoutExercises : workoutExercises)
+      @abExerciseView = new AbExerciseView(el: $('#view_firstPage'))
+
+  window.app = new AbTimeApp
