@@ -11,15 +11,23 @@ $(document).ready ->
 
   class AbExerciseView extends Backbone.View
 
-  class AbExerciseProgressView extends Backbone.View
-
   class WorkoutProgressView extends Backbone.View
     initialize: ->
       @workoutExercises = @options.workoutExercises
-      @abExerciseProgressViews = (@create_exercise_progress_view(@workoutExercises[i],i) for i in [0..@workoutExercises.length-1])
+      @render()
 
-    create_exercise_progress_view: (exercise, i) =>
-      return new AbExerciseProgressView(el: $('#timeline_exercise'+i))
+    render: =>
+      @names = (ex.get('name') for ex in @workoutExercises)
+      tmpl = '''
+             <div class="span16">
+               <% _.each(exercises, function(exercise) { %>
+                 <div class="exercise"><%= exercise %></div>
+               <% }); %>
+             </div>
+             '''
+      @exercise_progress_bar = _.template(tmpl)
+      $(@el.html(@exercise_progress_bar({ exercises : @names })))
+      @
 
   NUM_EXERCISES_IN_WORKOUT = 10
   class AbTimeApp extends Backbone.Router
@@ -29,8 +37,8 @@ $(document).ready ->
       @abExcericseCollection.fetch()
 
     populateViews: =>
-      workoutExercises = @abExcericseCollection.getExercises(NUM_EXERCISES_IN_WORKOUT)
-      @workoutProgressView = new WorkoutProgressView(el: $('#timeline'), workoutExercises : workoutExercises)
+      exercises = @abExcericseCollection.getExercises(NUM_EXERCISES_IN_WORKOUT)
+      @workoutProgressView = new WorkoutProgressView(el: $('#timeline'), workoutExercises : exercises)
       @abExerciseView = new AbExerciseView(el: $('#view_firstPage'))
 
   window.app = new AbTimeApp

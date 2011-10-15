@@ -8,7 +8,7 @@
     return child;
   };
   $(document).ready(function() {
-    var AbExerciseCollection, AbExerciseProgressView, AbExerciseView, AbTimeApp, NUM_EXERCISES_IN_WORKOUT, WorkoutProgressView;
+    var AbExerciseCollection, AbExerciseView, AbTimeApp, NUM_EXERCISES_IN_WORKOUT, WorkoutProgressView;
     AbExerciseCollection = (function() {
       __extends(AbExerciseCollection, Backbone.Collection);
       function AbExerciseCollection() {
@@ -40,35 +40,34 @@
       }
       return AbExerciseView;
     })();
-    AbExerciseProgressView = (function() {
-      __extends(AbExerciseProgressView, Backbone.View);
-      function AbExerciseProgressView() {
-        AbExerciseProgressView.__super__.constructor.apply(this, arguments);
-      }
-      return AbExerciseProgressView;
-    })();
     WorkoutProgressView = (function() {
       __extends(WorkoutProgressView, Backbone.View);
       function WorkoutProgressView() {
-        this.create_exercise_progress_view = __bind(this.create_exercise_progress_view, this);
+        this.render = __bind(this.render, this);
         WorkoutProgressView.__super__.constructor.apply(this, arguments);
       }
       WorkoutProgressView.prototype.initialize = function() {
-        var i;
         this.workoutExercises = this.options.workoutExercises;
-        return this.abExerciseProgressViews = (function() {
-          var _ref, _results;
+        return this.render();
+      };
+      WorkoutProgressView.prototype.render = function() {
+        var ex, tmpl;
+        this.names = (function() {
+          var _i, _len, _ref, _results;
+          _ref = this.workoutExercises;
           _results = [];
-          for (i = 0, _ref = this.workoutExercises.length - 1; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
-            _results.push(this.create_exercise_progress_view(this.workoutExercises[i], i));
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            ex = _ref[_i];
+            _results.push(ex.get('name'));
           }
           return _results;
         }).call(this);
-      };
-      WorkoutProgressView.prototype.create_exercise_progress_view = function(exercise, i) {
-        return new AbExerciseProgressView({
-          el: $('#timeline_exercise' + i)
-        });
+        tmpl = '<div class="span16">\n  <% _.each(exercises, function(exercise) { %>\n    <div class="exercise"><%= exercise %></div>\n  <% }); %>\n</div>';
+        this.exercise_progress_bar = _.template(tmpl);
+        $(this.el.html(this.exercise_progress_bar({
+          exercises: this.names
+        })));
+        return this;
       };
       return WorkoutProgressView;
     })();
@@ -85,11 +84,11 @@
         return this.abExcericseCollection.fetch();
       };
       AbTimeApp.prototype.populateViews = function() {
-        var workoutExercises;
-        workoutExercises = this.abExcericseCollection.getExercises(NUM_EXERCISES_IN_WORKOUT);
+        var exercises;
+        exercises = this.abExcericseCollection.getExercises(NUM_EXERCISES_IN_WORKOUT);
         this.workoutProgressView = new WorkoutProgressView({
           el: $('#timeline'),
-          workoutExercises: workoutExercises
+          workoutExercises: exercises
         });
         return this.abExerciseView = new AbExerciseView({
           el: $('#view_firstPage')
