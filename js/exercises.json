@@ -3,19 +3,37 @@
     "name":"Crunches, reach for your toes"
   },
   {
+    "name":"Crunches, reach for your toes, hands to the floor"
+  },
+  {
     "name":"Reverse crunches"
+  },
+  {
+    "name":"Reverse crunches, with a twist"
   },
   {
     "name":"Lawn chairs"
   },
   {
-    "name":"Cross-over reaches"
-  },
-  {
     "name":"Half lawn chairs"
   },
   {
-    "name":"6-inch hold"
+    "name":"Bikes"
+  },
+  {
+    "name":"Slow bikes"
+  },
+  {
+    "name":"Cross-over reaches"
+  },
+  {
+    "name":"6-inch holds"
+  },
+  {
+    "name":"6-inch holds, pulsating"
+  },
+  {
+    "name":"6-inch holds, feet wide"
   },
   {
     "name":"Rope climb"
@@ -27,6 +45,12 @@
     "name":"Frogs, 3 seconds"
   },
   {
-    "name":"Plank"
+    "name":"Planks"
+  },
+  {
+    "name":"Planks, alternating side kicks"
+  },
+  {
+    "name":"Planks, alternating vertical kicks"
   }
 ]
