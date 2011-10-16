@@ -268,23 +268,23 @@
         return this.currentIndex = 0;
       };
       AbTimeApp.prototype.populate_views = function() {
+        this.exercises = this.abExerciseCollection.get_exercises(NUM_EXERCISES_IN_WORKOUT);
         this.startStopButton = new StartStopButtonView({
           el: $('#controls')
         });
-        this.startStopButton.bind("start_clicked", this.start_workout_intro);
-        this.startStopButton.bind("stop_clicked", this.stop_workout);
-        this.exercises = this.abExerciseCollection.get_exercises(NUM_EXERCISES_IN_WORKOUT);
         this.workoutProgressView = new WorkoutProgressView({
           el: $('#timeline'),
           exercises: this.exercises
         });
-        this.workoutProgressView.el.hide();
         this.abExerciseView = new AbExerciseView({
           el: $('#view_firstPage'),
           secs_in_countdown: this.exercises[this.currentIndex].get("secs_in_countdown")
         });
+        this.startStopButton.bind("start_clicked", this.start_workout_intro);
+        this.startStopButton.bind("stop_clicked", this.stop_workout);
         this.abExerciseView.bind('intro_animation_end', this.start_workout_countdown);
         this.abExerciseView.bind('exercise_countdown_complete', this.exercise_countdown_complete);
+        this.workoutProgressView.el.hide();
         return this.abExerciseView.el.hide();
       };
       AbTimeApp.prototype.start_workout_intro = function() {

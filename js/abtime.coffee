@@ -188,15 +188,19 @@ $(document).ready ->
       @currentIndex = 0
 
     populate_views: =>
+      # Initialize views an get set of exercises
+      @exercises = @abExerciseCollection.get_exercises(NUM_EXERCISES_IN_WORKOUT)
       @startStopButton = new StartStopButtonView(el : $('#controls'))
+      @workoutProgressView = new WorkoutProgressView(el: $('#timeline'), exercises : @exercises)
+      @abExerciseView = new AbExerciseView(el: $('#view_firstPage'), secs_in_countdown : @exercises[@currentIndex].get("secs_in_countdown"))
+
+      # Set up event binding
       @startStopButton.bind("start_clicked", @start_workout_intro)
       @startStopButton.bind("stop_clicked", @stop_workout)
-      @exercises = @abExerciseCollection.get_exercises(NUM_EXERCISES_IN_WORKOUT)
-      @workoutProgressView = new WorkoutProgressView(el: $('#timeline'), exercises : @exercises)
-      @workoutProgressView.el.hide()
-      @abExerciseView = new AbExerciseView(el: $('#view_firstPage'), secs_in_countdown : @exercises[@currentIndex].get("secs_in_countdown"))
       @abExerciseView.bind('intro_animation_end', @start_workout_countdown)
       @abExerciseView.bind('exercise_countdown_complete', @exercise_countdown_complete)
+      # Put app into initial view state
+      @workoutProgressView.el.hide()
       @abExerciseView.el.hide()
 
     start_workout_intro: =>
