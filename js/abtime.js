@@ -8,20 +8,23 @@
     return child;
   };
   $(document).ready(function() {
-    var AbExerciseCollection, AbExerciseView, AbTimeApp, NUM_EXERCISES_IN_WORKOUT, WorkoutProgressView;
+    var AbExerciseCollection, AbExerciseView, AbTimeApp, StartStopButtonView, WorkoutProgressView;
     AbExerciseCollection = (function() {
       __extends(AbExerciseCollection, Backbone.Collection);
       function AbExerciseCollection() {
-        this.getExercises = __bind(this.getExercises, this);
+        this.get_exercises = __bind(this.get_exercises, this);
         AbExerciseCollection.__super__.constructor.apply(this, arguments);
       }
       AbExerciseCollection.prototype.url = 'js/exercises.json';
-      AbExerciseCollection.prototype.getExercises = function(n) {
+      AbExerciseCollection.prototype.defaults = {
+        'secs_in_countdown': 30
+      };
+      AbExerciseCollection.prototype.get_exercises = function(n) {
         var exercises, i;
         if (n <= 0) {
           return [];
         }
-        exercises = (function() {
+        return exercises = (function() {
           var _ref, _results;
           _results = [];
           for (i = 0, _ref = n - 1; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
@@ -29,15 +32,88 @@
           }
           return _results;
         }).call(this);
-        return exercises;
       };
       return AbExerciseCollection;
     })();
     AbExerciseView = (function() {
+      var NUM_FLASHES_ON_INTRO;
       __extends(AbExerciseView, Backbone.View);
       function AbExerciseView() {
+        this.tick_countdown = __bind(this.tick_countdown, this);
+        this.render = __bind(this.render, this);
+        this.render_next_exercise = __bind(this.render_next_exercise, this);
+        this.intro_animation_end = __bind(this.intro_animation_end, this);
+        this.render_intro_animation = __bind(this.render_intro_animation, this);
+        this.render_flash_low = __bind(this.render_flash_low, this);
+        this.render_flash_high = __bind(this.render_flash_high, this);
+        this.render_flash_normal = __bind(this.render_flash_normal, this);
         AbExerciseView.__super__.constructor.apply(this, arguments);
       }
+      NUM_FLASHES_ON_INTRO = 3;
+      AbExerciseView.prototype.initialize = function() {
+        this.current_exercise = "";
+        this.num_flashes = 0;
+        this.secs_left = 30;
+        return this.render();
+      };
+      AbExerciseView.prototype.render_flash_normal = function() {
+        return this.el.animate({
+          opacity: 1
+        }, 150, this.intro_animation_end);
+      };
+      AbExerciseView.prototype.render_flash_high = function() {
+        return this.el.animate({
+          opacity: 0.75
+        }, 150, this.render_intro_animation);
+      };
+      AbExerciseView.prototype.render_flash_low = function(callback) {
+        return this.el.animate({
+          opacity: 0.25
+        }, 150, callback);
+      };
+      AbExerciseView.prototype.render_intro_animation = function() {
+        if (this.num_flashes < NUM_FLASHES_ON_INTRO) {
+          this.num_flashes++;
+          this.render_flash_low(this.render_flash_high);
+        } else {
+          this.num_flashes = 0;
+          this.render_flash_low(this.render_flash_normal);
+        }
+        return this;
+      };
+      AbExerciseView.prototype.intro_animation_end = function() {
+        return this.trigger("intro_animation_end");
+      };
+      AbExerciseView.prototype.render_next_exercise = function(ex, secs) {
+        this.current_exercise = ex;
+        this.secs_left = 30;
+        this.render();
+        return this.render_intro_animation();
+      };
+      AbExerciseView.prototype.render = function() {
+        var clock_tmpl, tmpl;
+        tmpl = '<div class="row">\n  					   <div class="span8 offset4">\n    					   <h2 class="currentExcercise"><%= ex %></h2>\n  					   </div>\n </div>\n <div class="row" id="clock">';
+        if (this.secs_left > 10) {
+          clock_tmpl = '<div class="span8 offset4">\n  0:<span><%= secs_left %></span>\n</div>';
+        } else {
+          clock_tmpl = '<span class="lastTenSeconds"><%= secs_left %></span>';
+        }
+        tmpl = tmpl + clock_tmpl + '</div>';
+        this.ab_exercise_view = _.template(tmpl);
+        $(this.el.html(this.ab_exercise_view({
+          ex: this.current_exercise,
+          secs_left: this.secs_left
+        })));
+        return this;
+      };
+      AbExerciseView.prototype.tick_countdown = function() {
+        this.secs_left--;
+        if (this.secs_left === 0) {
+          return this.trigger("exercise_countdown_complete");
+        } else {
+          return this.render();
+        }
+      };
       return AbExerciseView;
     })();
     WorkoutProgressView = (function() {
@@ -47,7 +123,7 @@
         WorkoutProgressView.__super__.constructor.apply(this, arguments);
       }
       WorkoutProgressView.prototype.initialize = function() {
-        this.workoutExercises = this.options.workoutExercises;
+        this.workoutExercises = this.options.exercises;
         return this.render();
       };
       WorkoutProgressView.prototype.render = function() {
@@ -71,28 +147,117 @@
       };
       return WorkoutProgressView;
     })();
-    NUM_EXERCISES_IN_WORKOUT = 10;
+    StartStopButtonView = (function() {
+      __extends(StartStopButtonView, Backbone.View);
+      function StartStopButtonView() {
+        this.render = __bind(this.render, this);
+        this.render_btn = __bind(this.render_btn, this);
+        this.clicked_stop = __bind(this.clicked_stop, this);
+        this.clicked_start = __bind(this.clicked_start, this);
+        StartStopButtonView.__super__.constructor.apply(this, arguments);
+      }
+      StartStopButtonView.prototype.initialize = function() {
+        this.isStarted = false;
+        return this.render();
+      };
+      StartStopButtonView.prototype.events = {
+        "click input[value='start']": "clicked_start",
+        "click input[value='stop']": "clicked_stop"
+      };
+      StartStopButtonView.prototype.clicked_start = function() {
+        this.isStarted = true;
+        this.render_btn();
+        return this.trigger("start_clicked");
+      };
+      StartStopButtonView.prototype.clicked_stop = function() {
+        this.isStarted = false;
+        this.render_btn();
+        return this.trigger("stop_clicked");
+      };
+      StartStopButtonView.prototype.render_btn = function() {
+        if (this.isStarted) {
+          this.el.children("input[value='start']").hide();
+          return this.el.children("input[value='stop']").show();
+        } else {
+          this.el.children("input[value='start']").show();
+          return this.el.children("input[value='stop']").hide();
+        }
+      };
+      StartStopButtonView.prototype.render = function() {
+        var tmpl;
+        tmpl = '<input type="button" class="btn success" value="start">\n<input type="button" class="btn danger" value="stop">';
+        this.start_stop_button = _.template(tmpl);
+        $(this.el.html(this.start_stop_button()));
+        this.render_btn();
+        return this;
+      };
+      return StartStopButtonView;
+    })();
     AbTimeApp = (function() {
+      var NUM_EXERCISES_IN_WORKOUT;
       __extends(AbTimeApp, Backbone.Router);
       function AbTimeApp() {
-        this.populateViews = __bind(this.populateViews, this);
+        this.exercise_countdown_complete = __bind(this.exercise_countdown_complete, this);
+        this.stop_workout_countdown = __bind(this.stop_workout_countdown, this);
+        this.start_workout_countdown = __bind(this.start_workout_countdown, this);
+        this.start_workout_intro = __bind(this.start_workout_intro, this);
+        this.populate_views = __bind(this.populate_views, this);
         AbTimeApp.__super__.constructor.apply(this, arguments);
       }
+      NUM_EXERCISES_IN_WORKOUT = 10;
       AbTimeApp.prototype.initialize = function() {
-        this.abExcericseCollection = new AbExerciseCollection;
-        this.abExcericseCollection.bind("reset", this.populateViews);
-        return this.abExcericseCollection.fetch();
+        this.abExerciseCollection = new AbExerciseCollection;
+        this.abExerciseCollection.bind("reset", this.populate_views);
+        this.abExerciseCollection.fetch();
+        return this.currentIndex = 0;
       };
-      AbTimeApp.prototype.populateViews = function() {
-        var exercises;
-        exercises = this.abExcericseCollection.getExercises(NUM_EXERCISES_IN_WORKOUT);
+      AbTimeApp.prototype.populate_views = function() {
+        this.startStopButton = new StartStopButtonView({
+          el: $('#controls')
+        });
+        this.startStopButton.bind("start_clicked", this.start_workout_intro);
+        this.startStopButton.bind("stop_clicked", this.stop_workout_countdown);
+        this.exercises = this.abExerciseCollection.get_exercises(NUM_EXERCISES_IN_WORKOUT);
         this.workoutProgressView = new WorkoutProgressView({
           el: $('#timeline'),
-          workoutExercises: exercises
+          exercises: this.exercises
         });
-        return this.abExerciseView = new AbExerciseView({
-          el: $('#view_firstPage')
+        this.workoutProgressView.el.hide();
+        this.abExerciseView = new AbExerciseView({
+          el: $('#view_firstPage'),
+          secs_in_countdown: this.exercises[this.currentIndex].get("secs_in_countdown")
         });
+        this.abExerciseView.bind('intro_animation_end', this.start_workout_countdown);
+        this.abExerciseView.bind('exercise_countdown_complete', this.exercise_countdown_complete);
+        return this.abExerciseView.el.hide();
+      };
+      AbTimeApp.prototype.start_workout_intro = function() {
+        var name, secs;
+        secs = this.exercises[this.currentIndex].get("secs_in_countdown");
+        name = this.exercises[this.currentIndex].get("name");
+        $("div#view_splashPage").hide();
+        this.workoutProgressView.el.show();
+        this.abExerciseView.el.show();
+        return this.abExerciseView.render_next_exercise(name, secs);
+      };
+      AbTimeApp.prototype.start_workout_countdown = function() {
+        return $(document).everyTime("1s", "workoutCountdown", this.abExerciseView.tick_countdown);
+      };
+      AbTimeApp.prototype.stop_workout_countdown = function() {
+        this.currentIndex = 0;
+        $(document).stopTime("workoutCountdown");
+        this.abExerciseView.el.hide();
+        this.workoutProgressView.el.hide();
+        return $("div#view_splashPage").show();
+      };
+      AbTimeApp.prototype.exercise_countdown_complete = function() {
+        this.currentIndex++;
+        if (this.currentIndex < NUM_EXERCISES_IN_WORKOUT) {
+          $(document).stopTime("workoutCountdown");
+          return this.start_workout_intro();
+        } else {
+          return this.stop_workout_countdown();
+        }
       };
       return AbTimeApp;
     })();
