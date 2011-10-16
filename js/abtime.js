@@ -8,6 +8,13 @@
     return child;
   };
   $(document).ready(function() {
+    /*
+      # AbExerciseCollection
+      #
+      # Implements logic to fetch useful sets of exercises.
+      # Its data source is a JSON document containing properties such
+      # as exercise names.
+      */
     var AbExerciseCollection, AbExerciseView, AbTimeApp, StartStopButtonView, WorkoutProgressView;
     AbExerciseCollection = (function() {
       __extends(AbExerciseCollection, Backbone.Collection);
@@ -19,6 +26,15 @@
       AbExerciseCollection.prototype.defaults = {
         'secs_in_countdown': 30
       };
+      /*
+          # get_exercises
+          #
+          # @param n int, number of exercises to return
+          #
+          # @return n exercises, repeating if the collection contains
+          # less than n elements. If the collection contains no elements,
+          # an empty list is returned.
+          */
       AbExerciseCollection.prototype.get_exercises = function(n) {
         var exercises, i;
         if (n <= 0) {
@@ -35,6 +51,13 @@
       };
       return AbExerciseCollection;
     })();
+    /*
+      # AbExerciseView
+      #
+      # Creates main exercise view DOM, including the current exercise
+      # name, a countdown of how much time is left, as well as all associated
+      # animations.
+      */
     AbExerciseView = (function() {
       var NUM_FLASHES_ON_INTRO;
       __extends(AbExerciseView, Backbone.View);
@@ -116,9 +139,17 @@
       };
       return AbExerciseView;
     })();
+    /*
+      # WorkoutProgressView
+      #
+      # Creates progress bar view DOM, including individual exercise progress
+      # elements and controlling workout progress animation.
+      */
     WorkoutProgressView = (function() {
       __extends(WorkoutProgressView, Backbone.View);
       function WorkoutProgressView() {
+        this.render_clear_progress = __bind(this.render_clear_progress, this);
+        this.render_increment_progress = __bind(this.render_increment_progress, this);
         this.render = __bind(this.render, this);
         WorkoutProgressView.__super__.constructor.apply(this, arguments);
       }
@@ -145,13 +176,26 @@
         })));
         return this;
       };
+      WorkoutProgressView.prototype.render_increment_progress = function(i) {
+        return $("div.exercise").eq(i).css("background-color", "blue");
+      };
+      WorkoutProgressView.prototype.render_clear_progress = function() {
+        return $("div.exercise").css("background-color", "gray");
+      };
       return WorkoutProgressView;
     })();
+    /*
+      # StartStopButtonView
+      #
+      # Creates start/stop button DOM and handles logic and signaling
+      # associated with user interaction.
+      */
     StartStopButtonView = (function() {
       __extends(StartStopButtonView, Backbone.View);
       function StartStopButtonView() {
         this.render = __bind(this.render, this);
         this.render_btn = __bind(this.render_btn, this);
+        this.toggle_btn_state = __bind(this.toggle_btn_state, this);
         this.clicked_stop = __bind(this.clicked_stop, this);
         this.clicked_start = __bind(this.clicked_start, this);
         StartStopButtonView.__super__.constructor.apply(this, arguments);
@@ -174,6 +218,10 @@
         this.render_btn();
         return this.trigger("stop_clicked");
       };
+      StartStopButtonView.prototype.toggle_btn_state = function() {
+        this.isStarted = !this.isStarted;
+        return this.render_btn();
+      };
       StartStopButtonView.prototype.render_btn = function() {
         if (this.isStarted) {
           this.el.children("input[value='start']").hide();
@@ -193,12 +241,20 @@
       };
       return StartStopButtonView;
     })();
+    /*
+      # AbTimeApp
+      #
+      # Main application logic responsible for intializing collection and views
+      # and registering for appropriate application events based on time and user
+      # interaction.
+      */
     AbTimeApp = (function() {
       var NUM_EXERCISES_IN_WORKOUT;
       __extends(AbTimeApp, Backbone.Router);
       function AbTimeApp() {
-        this.exercise_countdown_complete = __bind(this.exercise_countdown_complete, this);
+        this.stop_workout = __bind(this.stop_workout, this);
         this.stop_workout_countdown = __bind(this.stop_workout_countdown, this);
+        this.exercise_countdown_complete = __bind(this.exercise_countdown_complete, this);
         this.start_workout_countdown = __bind(this.start_workout_countdown, this);
         this.start_workout_intro = __bind(this.start_workout_intro, this);
         this.populate_views = __bind(this.populate_views, this);
@@ -216,7 +272,7 @@
           el: $('#controls')
         });
         this.startStopButton.bind("start_clicked", this.start_workout_intro);
-        this.startStopButton.bind("stop_clicked", this.stop_workout_countdown);
+        this.startStopButton.bind("stop_clicked", this.stop_workout);
         this.exercises = this.abExerciseCollection.get_exercises(NUM_EXERCISES_IN_WORKOUT);
         this.workoutProgressView = new WorkoutProgressView({
           el: $('#timeline'),
@@ -243,14 +299,8 @@
       AbTimeApp.prototype.start_workout_countdown = function() {
         return $(document).everyTime("1s", "workoutCountdown", this.abExerciseView.tick_countdown);
       };
-      AbTimeApp.prototype.stop_workout_countdown = function() {
-        this.currentIndex = 0;
-        $(document).stopTime("workoutCountdown");
-        this.abExerciseView.el.hide();
-        this.workoutProgressView.el.hide();
-        return $("div#view_splashPage").show();
-      };
       AbTimeApp.prototype.exercise_countdown_complete = function() {
+        this.workoutProgressView.render_increment_progress(this.currentIndex);
         this.currentIndex++;
         if (this.currentIndex < NUM_EXERCISES_IN_WORKOUT) {
           $(document).stopTime("workoutCountdown");
@@ -258,6 +308,18 @@
         } else {
           return this.stop_workout_countdown();
         }
+      };
+      AbTimeApp.prototype.stop_workout_countdown = function() {
+        this.startStopButton.toggle_btn_state();
+        return this.stop_workout();
+      };
+      AbTimeApp.prototype.stop_workout = function() {
+        this.currentIndex = 0;
+        $(document).stopTime("workoutCountdown");
+        this.abExerciseView.el.hide();
+        this.workoutProgressView.render_clear_progress();
+        this.workoutProgressView.el.hide();
+        return $("div#view_splashPage").show();
       };
       return AbTimeApp;
     })();

@@ -1,14 +1,37 @@
 $(document).ready ->
+  ###
+  # AbExerciseCollection
+  #
+  # Implements logic to fetch useful sets of exercises.
+  # Its data source is a JSON document containing properties such
+  # as exercise names.
+  ###
   class AbExerciseCollection extends Backbone.Collection
     url : 'js/exercises.json'
     defaults :
       'secs_in_countdown' : 30
 
+    ###
+    # get_exercises
+    #
+    # @param n int, number of exercises to return
+    #
+    # @return n exercises, repeating if the collection contains
+    # less than n elements. If the collection contains no elements,
+    # an empty list is returned.
+    ###
     get_exercises : (n) =>
       if n <= 0
         return []
       exercises = (@at(i % @length) for i in [0..n-1])
 
+  ###
+  # AbExerciseView
+  #
+  # Creates main exercise view DOM, including the current exercise
+  # name, a countdown of how much time is left, as well as all associated
+  # animations.
+  ###
   class AbExerciseView extends Backbone.View
     NUM_FLASHES_ON_INTRO = 3
     initialize: ->
@@ -71,6 +94,12 @@ $(document).ready ->
       else
         @render()
 
+  ###
+  # WorkoutProgressView
+  #
+  # Creates progress bar view DOM, including individual exercise progress
+  # elements and controlling workout progress animation.
+  ###
   class WorkoutProgressView extends Backbone.View
     initialize: ->
       @workoutExercises = @options.exercises
@@ -89,6 +118,19 @@ $(document).ready ->
       $(@el.html(@exercise_progress_bar({ exercises : @names })))
       @
 
+    render_increment_progress: (i) =>
+      $("div.exercise").eq(i).css("background-color","blue")
+
+    render_clear_progress: =>
+      $("div.exercise").css("background-color","gray")
+
+
+  ###
+  # StartStopButtonView
+  #
+  # Creates start/stop button DOM and handles logic and signaling
+  # associated with user interaction.
+  ###
   class StartStopButtonView extends Backbone.View
     initialize: ->
       @isStarted = false
@@ -108,6 +150,10 @@ $(document).ready ->
       @render_btn()
       @trigger("stop_clicked")
 
+    toggle_btn_state: =>
+      @isStarted = !@isStarted
+      @render_btn()
+
     render_btn: =>
       if @isStarted
         @el.children("input[value='start']").hide()
@@ -126,6 +172,13 @@ $(document).ready ->
       @render_btn()
       @
 
+  ###
+  # AbTimeApp
+  #
+  # Main application logic responsible for intializing collection and views
+  # and registering for appropriate application events based on time and user
+  # interaction.
+  ###
   class AbTimeApp extends Backbone.Router
     NUM_EXERCISES_IN_WORKOUT = 10
     initialize: ->
@@ -137,7 +190,7 @@ $(document).ready ->
     populate_views: =>
       @startStopButton = new StartStopButtonView(el : $('#controls'))
       @startStopButton.bind("start_clicked", @start_workout_intro)
-      @startStopButton.bind("stop_clicked", @stop_workout_countdown)
+      @startStopButton.bind("stop_clicked", @stop_workout)
       @exercises = @abExerciseCollection.get_exercises(NUM_EXERCISES_IN_WORKOUT)
       @workoutProgressView = new WorkoutProgressView(el: $('#timeline'), exercises : @exercises)
       @workoutProgressView.el.hide()
@@ -155,20 +208,22 @@ $(document).ready ->
       @abExerciseView.render_next_exercise(name,secs)
     start_workout_countdown: =>
       $(document).everyTime("1s","workoutCountdown",@abExerciseView.tick_countdown)
-
-    stop_workout_countdown: =>
-      @currentIndex = 0
-      $(document).stopTime("workoutCountdown")
-      @abExerciseView.el.hide()
-      @workoutProgressView.el.hide()
-      $("div#view_splashPage").show();
-
     exercise_countdown_complete: =>
+      @workoutProgressView.render_increment_progress(@currentIndex)
       @currentIndex++
       if @currentIndex < NUM_EXERCISES_IN_WORKOUT
         $(document).stopTime("workoutCountdown")
         @start_workout_intro()
       else
         @stop_workout_countdown()
-
+    stop_workout_countdown: =>
+      @startStopButton.toggle_btn_state()
+      @stop_workout()
+    stop_workout: =>
+      @currentIndex = 0
+      $(document).stopTime("workoutCountdown")
+      @abExerciseView.el.hide()
+      @workoutProgressView.render_clear_progress()
+      @workoutProgressView.el.hide()
+      $("div#view_splashPage").show()
   window.app = new AbTimeApp
