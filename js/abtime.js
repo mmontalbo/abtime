@@ -14,8 +14,7 @@
       # Implements logic to fetch useful sets of exercises.
       # Its data source is a JSON document containing properties such
       # as exercise names.
-      */
-    var AbExerciseCollection, AbExerciseView, AbTimeApp, StartStopButtonView, WorkoutProgressView;
+      */    var AbExerciseCollection, AbExerciseView, AbTimeApp, StartStopButtonView, WorkoutProgressView;
     AbExerciseCollection = (function() {
       __extends(AbExerciseCollection, Backbone.Collection);
       function AbExerciseCollection() {
@@ -65,11 +64,11 @@
         this.tick_countdown = __bind(this.tick_countdown, this);
         this.render = __bind(this.render, this);
         this.render_next_exercise = __bind(this.render_next_exercise, this);
-        this.intro_animation_end = __bind(this.intro_animation_end, this);
         this.render_intro_animation = __bind(this.render_intro_animation, this);
         this.render_flash_low = __bind(this.render_flash_low, this);
         this.render_flash_high = __bind(this.render_flash_high, this);
         this.render_flash_normal = __bind(this.render_flash_normal, this);
+        this.intro_animation_end = __bind(this.intro_animation_end, this);
         AbExerciseView.__super__.constructor.apply(this, arguments);
       }
       NUM_FLASHES_ON_INTRO = 3;
@@ -78,6 +77,9 @@
         this.num_flashes = 0;
         this.secs_left = 30;
         return this.render();
+      };
+      AbExerciseView.prototype.intro_animation_end = function() {
+        return this.trigger("intro_animation_end");
       };
       AbExerciseView.prototype.render_flash_normal = function() {
         return this.el.animate({
@@ -104,9 +106,6 @@
         }
         return this;
       };
-      AbExerciseView.prototype.intro_animation_end = function() {
-        return this.trigger("intro_animation_end");
-      };
       AbExerciseView.prototype.render_next_exercise = function(ex, secs) {
         this.current_exercise = ex;
         this.secs_left = 30;
@@ -115,7 +114,7 @@
       };
       AbExerciseView.prototype.render = function() {
         var clock_tmpl, tmpl;
-        tmpl = '<div class="row">\n  					   <div class="span8 offset4">\n    					   <h2 class="currentExcercise"><%= ex %></h2>\n  					   </div>\n </div>\n <div class="row" id="clock">';
+        tmpl = '<div class="row">\n  					   <div class="span16">\n    					   <h2 class="currentExcercise"><%= ex %></h2>\n  					   </div>\n </div>\n <div class="row" id="clock">';
         if (this.secs_left > 10) {
           clock_tmpl = '<div class="span8 offset4">\n  0:<span><%= secs_left %></span>\n</div>';
         } else {

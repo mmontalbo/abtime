@@ -40,6 +40,8 @@ $(document).ready ->
       @secs_left = 30
       @render()
 
+    intro_animation_end: =>
+      @trigger("intro_animation_end")
     render_flash_normal: =>
       @el.animate({opacity:1},150,@intro_animation_end)
     render_flash_high: =>
@@ -54,9 +56,6 @@ $(document).ready ->
         @num_flashes = 0
         @render_flash_low(@render_flash_normal)
       @
-    intro_animation_end: =>
-      @trigger("intro_animation_end")
-
     render_next_exercise: (ex, secs) =>
       @current_exercise = ex
       @secs_left = 30
@@ -66,7 +65,7 @@ $(document).ready ->
     render: =>
       tmpl = '''
 				     <div class="row">
-  					   <div class="span8 offset4">
+  					   <div class="span16">
     					   <h2 class="currentExcercise"><%= ex %></h2>
   					   </div>
 				      </div>
