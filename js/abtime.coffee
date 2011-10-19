@@ -210,10 +210,9 @@ $(document).ready ->
       @abExerciseView.el.show()
       @abExerciseView.render_next_exercise(name,secs)
     start_workout_countdown: =>
-      @workoutProgressView.render_increment_progress(@currentIndex)
       $(document).everyTime("1s","workoutCountdown",@abExerciseView.tick_countdown)
-
     exercise_countdown_complete: =>
+      @workoutProgressView.render_increment_progress(@currentIndex)
       @currentIndex++
       if @currentIndex < NUM_EXERCISES_IN_WORKOUT
         $(document).stopTime("workoutCountdown")
