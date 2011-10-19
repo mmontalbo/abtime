@@ -1,4 +1,15 @@
+###
+# http://stackoverflow.com/questions/4825812/
+# clean-way-to-remove-element-from-javascript-array-with-jquery-coffeescript
+#
+# removes item at index e from array
+###
+Array::remove = (e) -> @[t..t] = [] if (t = @indexOf(e)) > -1
+
 $(document).ready ->
+  NUM_EXERCISES_IN_WORKOUT = 10
+  NUM_FLASHES_ON_INTRO = 3
+
   ###
   # AbExerciseCollection
   #
@@ -20,10 +31,38 @@ $(document).ready ->
     # less than n elements. If the collection contains no elements,
     # an empty list is returned.
     ###
-    get_exercises : (n) =>
+    get_exercises : (n = NUM_EXERCISES_IN_WORKOUT) =>
       if n <= 0
         return []
       exercises = (@at(i % @length) for i in [0..n-1])
+
+    ###
+    # get_random_exercises
+    #
+    # @param n int, number of exercises to return
+    # @param r int, maximum number of times an exercise should repeat
+    #
+    # @return n random exercises, with exercises repeating at most 2
+    # times throughout the workout
+    ###
+    get_random_exercises : (n = NUM_EXERCISES_IN_WORKOUT, r = 2) =>
+      if n <= 0
+        return []
+
+      exercises = (m.get("name") for m in @models)
+      exercisesChosen = {}
+      randomExercises = []
+
+      while exercises.length > 0 and randomExercises.length < n
+        rand = Math.floor(Math.random() * exercises.length)
+        randPick = exercises[rand]
+        randomExercises[randPick] ?= 0
+        if randomExercises[randPick] < r-1
+          randomExercises[randPick]++
+        else if randomExercises[randPick] < r
+          exercises.remove(randPick)
+        randomExercises.push(@at(rand))
+      randomExercises
 
   ###
   # AbExerciseView
@@ -33,7 +72,6 @@ $(document).ready ->
   # animations.
   ###
   class AbExerciseView extends Backbone.View
-    NUM_FLASHES_ON_INTRO = 3
     initialize: ->
       @current_exercise = ""
       @num_flashes = 0
@@ -179,7 +217,6 @@ $(document).ready ->
   # interaction.
   ###
   class AbTimeApp extends Backbone.Router
-    NUM_EXERCISES_IN_WORKOUT = 10
     initialize: ->
       @abExerciseCollection = new AbExerciseCollection
       @abExerciseCollection.bind("reset",@populate_views)
@@ -188,19 +225,23 @@ $(document).ready ->
 
     populate_views: =>
       # Initialize views an get set of exercises
-      @exercises = @abExerciseCollection.get_exercises(NUM_EXERCISES_IN_WORKOUT)
       @startStopButton = new StartStopButtonView(el : $('#controls'))
-      @workoutProgressView = new WorkoutProgressView(el: $('#timeline'), exercises : @exercises)
-      @abExerciseView = new AbExerciseView(el: $('#view_firstPage'), secs_in_countdown : @exercises[@currentIndex].get("secs_in_countdown"))
 
       # Set up event binding
       @startStopButton.bind("start_clicked", @start_workout_intro)
       @startStopButton.bind("stop_clicked", @stop_workout)
+      @populate_workout_views()
+
+    populate_workout_views: =>
+      @exercises = @abExerciseCollection.get_random_exercises()
+      @workoutProgressView = new WorkoutProgressView(el: $('#timeline'), exercises : @exercises)
+      @abExerciseView = new AbExerciseView(el: $('#view_firstPage'), secs_in_countdown : @exercises[@currentIndex].get("secs_in_countdown"))
       @abExerciseView.bind('intro_animation_end', @start_workout_countdown)
       @abExerciseView.bind('exercise_countdown_complete', @exercise_countdown_complete)
       # Put app into initial view state
       @workoutProgressView.el.hide()
       @abExerciseView.el.hide()
+
 
     start_workout_intro: =>
       secs = @exercises[@currentIndex].get("secs_in_countdown")
@@ -225,8 +266,6 @@ $(document).ready ->
     stop_workout: =>
       @currentIndex = 0
       $(document).stopTime("workoutCountdown")
-      @abExerciseView.el.hide()
-      @workoutProgressView.render_clear_progress()
-      @workoutProgressView.el.hide()
+      @populate_workout_views()
       $("div#view_splashPage").show()
   window.app = new AbTimeApp

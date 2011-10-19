@@ -1,4 +1,10 @@
 (function() {
+  /*
+  # http://stackoverflow.com/questions/4825812/
+  # clean-way-to-remove-element-from-javascript-array-with-jquery-coffeescript
+  #
+  # removes item at index e from array
+  */
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
@@ -7,17 +13,27 @@
     child.__super__ = parent.prototype;
     return child;
   };
+  Array.prototype.remove = function(e) {
+    var t, _ref;
+    if ((t = this.indexOf(e)) > -1) {
+      return ([].splice.apply(this, [t, t - t + 1].concat(_ref = [])), _ref);
+    }
+  };
   $(document).ready(function() {
+    var AbExerciseCollection, AbExerciseView, AbTimeApp, NUM_EXERCISES_IN_WORKOUT, NUM_FLASHES_ON_INTRO, StartStopButtonView, WorkoutProgressView;
+    NUM_EXERCISES_IN_WORKOUT = 10;
+    NUM_FLASHES_ON_INTRO = 3;
     /*
       # AbExerciseCollection
       #
       # Implements logic to fetch useful sets of exercises.
       # Its data source is a JSON document containing properties such
       # as exercise names.
-      */    var AbExerciseCollection, AbExerciseView, AbTimeApp, StartStopButtonView, WorkoutProgressView;
+      */
     AbExerciseCollection = (function() {
       __extends(AbExerciseCollection, Backbone.Collection);
       function AbExerciseCollection() {
+        this.get_random_exercises = __bind(this.get_random_exercises, this);
         this.get_exercises = __bind(this.get_exercises, this);
         AbExerciseCollection.__super__.constructor.apply(this, arguments);
       }
@@ -36,6 +52,9 @@
           */
       AbExerciseCollection.prototype.get_exercises = function(n) {
         var exercises, i;
+        if (n == null) {
+          n = NUM_EXERCISES_IN_WORKOUT;
+        }
         if (n <= 0) {
           return [];
         }
@@ -48,6 +67,53 @@
           return _results;
         }).call(this);
       };
+      /*
+          # get_random_exercises
+          #
+          # @param n int, number of exercises to return
+          # @param r int, maximum number of times an exercise should repeat
+          #
+          # @return n random exercises, with exercises repeating at most 2
+          # times throughout the workout
+          */
+      AbExerciseCollection.prototype.get_random_exercises = function(n, r) {
+        var exercises, exercisesChosen, m, rand, randPick, randomExercises, _ref;
+        if (n == null) {
+          n = NUM_EXERCISES_IN_WORKOUT;
+        }
+        if (r == null) {
+          r = 2;
+        }
+        if (n <= 0) {
+          return [];
+        }
+        exercises = (function() {
+          var _i, _len, _ref, _results;
+          _ref = this.models;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            m = _ref[_i];
+            _results.push(m.get("name"));
+          }
+          return _results;
+        }).call(this);
+        exercisesChosen = {};
+        randomExercises = [];
+        while (exercises.length > 0 && randomExercises.length < n) {
+          rand = Math.floor(Math.random() * exercises.length);
+          randPick = exercises[rand];
+          if ((_ref = randomExercises[randPick]) == null) {
+            randomExercises[randPick] = 0;
+          }
+          if (randomExercises[randPick] < r - 1) {
+            randomExercises[randPick]++;
+          } else if (randomExercises[randPick] < r) {
+            exercises.remove(randPick);
+          }
+          randomExercises.push(this.at(rand));
+        }
+        return randomExercises;
+      };
       return AbExerciseCollection;
     })();
     /*
@@ -58,7 +124,6 @@
       # animations.
       */
     AbExerciseView = (function() {
-      var NUM_FLASHES_ON_INTRO;
       __extends(AbExerciseView, Backbone.View);
       function AbExerciseView() {
         this.tick_countdown = __bind(this.tick_countdown, this);
@@ -71,7 +136,6 @@
         this.intro_animation_end = __bind(this.intro_animation_end, this);
         AbExerciseView.__super__.constructor.apply(this, arguments);
       }
-      NUM_FLASHES_ON_INTRO = 3;
       AbExerciseView.prototype.initialize = function() {
         this.current_exercise = "";
         this.num_flashes = 0;
@@ -248,7 +312,6 @@
       # interaction.
       */
     AbTimeApp = (function() {
-      var NUM_EXERCISES_IN_WORKOUT;
       __extends(AbTimeApp, Backbone.Router);
       function AbTimeApp() {
         this.stop_workout = __bind(this.stop_workout, this);
@@ -256,10 +319,10 @@
         this.exercise_countdown_complete = __bind(this.exercise_countdown_complete, this);
         this.start_workout_countdown = __bind(this.start_workout_countdown, this);
         this.start_workout_intro = __bind(this.start_workout_intro, this);
+        this.populate_workout_views = __bind(this.populate_workout_views, this);
         this.populate_views = __bind(this.populate_views, this);
         AbTimeApp.__super__.constructor.apply(this, arguments);
       }
-      NUM_EXERCISES_IN_WORKOUT = 10;
       AbTimeApp.prototype.initialize = function() {
         this.abExerciseCollection = new AbExerciseCollection;
         this.abExerciseCollection.bind("reset", this.populate_views);
@@ -267,10 +330,15 @@
         return this.currentIndex = 0;
       };
       AbTimeApp.prototype.populate_views = function() {
-        this.exercises = this.abExerciseCollection.get_exercises(NUM_EXERCISES_IN_WORKOUT);
         this.startStopButton = new StartStopButtonView({
           el: $('#controls')
         });
+        this.startStopButton.bind("start_clicked", this.start_workout_intro);
+        this.startStopButton.bind("stop_clicked", this.stop_workout);
+        return this.populate_workout_views();
+      };
+      AbTimeApp.prototype.populate_workout_views = function() {
+        this.exercises = this.abExerciseCollection.get_random_exercises();
         this.workoutProgressView = new WorkoutProgressView({
           el: $('#timeline'),
           exercises: this.exercises
@@ -279,8 +347,6 @@
           el: $('#view_firstPage'),
           secs_in_countdown: this.exercises[this.currentIndex].get("secs_in_countdown")
         });
-        this.startStopButton.bind("start_clicked", this.start_workout_intro);
-        this.startStopButton.bind("stop_clicked", this.stop_workout);
         this.abExerciseView.bind('intro_animation_end', this.start_workout_countdown);
         this.abExerciseView.bind('exercise_countdown_complete', this.exercise_countdown_complete);
         this.workoutProgressView.el.hide();
@@ -315,9 +381,7 @@
       AbTimeApp.prototype.stop_workout = function() {
         this.currentIndex = 0;
         $(document).stopTime("workoutCountdown");
-        this.abExerciseView.el.hide();
-        this.workoutProgressView.render_clear_progress();
-        this.workoutProgressView.el.hide();
+        this.populate_workout_views();
         return $("div#view_splashPage").show();
       };
       return AbTimeApp;
