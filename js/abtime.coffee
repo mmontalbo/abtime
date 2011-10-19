@@ -42,26 +42,30 @@ $(document).ready ->
     # @param n int, number of exercises to return
     # @param r int, maximum number of times an exercise should repeat
     #
-    # @return n random exercises, with exercises repeating at most 2
+    # @return n random exercises, with exercises repeating at most r
     # times throughout the workout
     ###
-    get_random_exercises : (n = NUM_EXERCISES_IN_WORKOUT, r = 2) =>
+    get_random_exercises : (n = NUM_EXERCISES_IN_WORKOUT, r = 1) =>
       if n <= 0
         return []
 
-      exercises = (m.get("name") for m in @models)
+      exercises = (m for m in @models)
       exercisesChosen = {}
       randomExercises = []
 
       while exercises.length > 0 and randomExercises.length < n
         rand = Math.floor(Math.random() * exercises.length)
-        randPick = exercises[rand]
-        randomExercises[randPick] ?= 0
-        if randomExercises[randPick] < r-1
-          randomExercises[randPick]++
-        else if randomExercises[randPick] < r
-          exercises.remove(randPick)
-        randomExercises.push(@at(rand))
+        randomExercise = exercises[rand]
+        randomExercises.push(randomExercise)
+        randomExerciseName = randomExercise.get("name")
+
+        exercisesChosen[randomExerciseName] ?= 0
+        if r == 1
+          exercises.remove(randomExercise)
+        else if exercisesChosen[randomExerciseName] < r-1
+          exercisesChosen[randPick]++
+        else if exercisesChosen[randomExerciseName] < r
+          exercises.remove(randomExercise)
       randomExercises
 
   ###

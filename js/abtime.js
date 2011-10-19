@@ -73,16 +73,16 @@
           # @param n int, number of exercises to return
           # @param r int, maximum number of times an exercise should repeat
           #
-          # @return n random exercises, with exercises repeating at most 2
+          # @return n random exercises, with exercises repeating at most r
           # times throughout the workout
           */
       AbExerciseCollection.prototype.get_random_exercises = function(n, r) {
-        var exercises, exercisesChosen, m, rand, randPick, randomExercises, _ref;
+        var exercises, exercisesChosen, m, rand, randomExercise, randomExerciseName, randomExercises, _ref;
         if (n == null) {
           n = NUM_EXERCISES_IN_WORKOUT;
         }
         if (r == null) {
-          r = 2;
+          r = 1;
         }
         if (n <= 0) {
           return [];
@@ -93,7 +93,7 @@
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             m = _ref[_i];
-            _results.push(m.get("name"));
+            _results.push(m);
           }
           return _results;
         }).call(this);
@@ -101,16 +101,19 @@
         randomExercises = [];
         while (exercises.length > 0 && randomExercises.length < n) {
           rand = Math.floor(Math.random() * exercises.length);
-          randPick = exercises[rand];
-          if ((_ref = randomExercises[randPick]) == null) {
-            randomExercises[randPick] = 0;
+          randomExercise = exercises[rand];
+          randomExercises.push(randomExercise);
+          randomExerciseName = randomExercise.get("name");
+          if ((_ref = exercisesChosen[randomExerciseName]) == null) {
+            exercisesChosen[randomExerciseName] = 0;
           }
-          if (randomExercises[randPick] < r - 1) {
-            randomExercises[randPick]++;
-          } else if (randomExercises[randPick] < r) {
-            exercises.remove(randPick);
+          if (r === 1) {
+            exercises.remove(randomExercise);
+          } else if (exercisesChosen[randomExerciseName] < r - 1) {
+            exercisesChosen[randPick]++;
+          } else if (exercisesChosen[randomExerciseName] < r) {
+            exercises.remove(randomExercise);
           }
-          randomExercises.push(this.at(rand));
         }
         return randomExercises;
       };
