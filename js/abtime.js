@@ -296,10 +296,10 @@
         return this.abExerciseView.render_next_exercise(name, secs);
       };
       AbTimeApp.prototype.start_workout_countdown = function() {
+        this.workoutProgressView.render_increment_progress(this.currentIndex);
         return $(document).everyTime("1s", "workoutCountdown", this.abExerciseView.tick_countdown);
       };
       AbTimeApp.prototype.exercise_countdown_complete = function() {
-        this.workoutProgressView.render_increment_progress(this.currentIndex);
         this.currentIndex++;
         if (this.currentIndex < NUM_EXERCISES_IN_WORKOUT) {
           $(document).stopTime("workoutCountdown");
