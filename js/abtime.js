@@ -55,7 +55,7 @@
         if (n == null) {
           n = NUM_EXERCISES_IN_WORKOUT;
         }
-        if (n <= 0) {
+        if (n <= 0 || this.length === 0) {
           return [];
         }
         return exercises = (function() {
@@ -344,8 +344,7 @@
           exercises: this.exercises
         });
         this.abExerciseView = new AbExerciseView({
-          el: $('#view_firstPage'),
-          secs_in_countdown: this.exercises[this.currentIndex].get("secs_in_countdown")
+          el: $('#view_firstPage')
         });
         this.abExerciseView.bind('intro_animation_end', this.start_workout_countdown);
         this.abExerciseView.bind('exercise_countdown_complete', this.exercise_countdown_complete);

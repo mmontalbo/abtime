@@ -32,7 +32,7 @@ $(document).ready ->
     # an empty list is returned.
     ###
     get_exercises : (n = NUM_EXERCISES_IN_WORKOUT) =>
-      if n <= 0
+      if n <= 0 or @length is 0
         return []
       exercises = (@at(i % @length) for i in [0..n-1])
 
@@ -224,20 +224,24 @@ $(document).ready ->
       @currentIndex = 0
 
     populate_views: =>
-      # Initialize views an get set of exercises
       @startStopButton = new StartStopButtonView(el : $('#controls'))
 
-      # Set up event binding
+      # Set up event binding for start/stop button
       @startStopButton.bind("start_clicked", @start_workout_intro)
       @startStopButton.bind("stop_clicked", @stop_workout)
+
       @populate_workout_views()
 
     populate_workout_views: =>
+      # Initialize views an get set of exercises
       @exercises = @abExerciseCollection.get_random_exercises()
       @workoutProgressView = new WorkoutProgressView(el: $('#timeline'), exercises : @exercises)
-      @abExerciseView = new AbExerciseView(el: $('#view_firstPage'), secs_in_countdown : @exercises[@currentIndex].get("secs_in_countdown"))
+      @abExerciseView = new AbExerciseView(el: $('#view_firstPage'))
+
+      # Set up event binding
       @abExerciseView.bind('intro_animation_end', @start_workout_countdown)
       @abExerciseView.bind('exercise_countdown_complete', @exercise_countdown_complete)
+
       # Put app into initial view state
       @workoutProgressView.el.hide()
       @abExerciseView.el.hide()
