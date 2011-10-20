@@ -204,8 +204,8 @@
         this.current_exercise = ex;
         this.secs_left = 30;
         this.render();
-        this.render_intro_animation();
-        return this.audioView = new AudioView();
+        this.audioView = new AudioView();
+        return this.render_intro_animation();
       };
       AbExerciseView.prototype.render = function() {
         var clock_tmpl, tmpl;

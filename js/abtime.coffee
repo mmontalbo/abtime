@@ -125,8 +125,9 @@ $(document).ready ->
       @current_exercise = ex
       @secs_left = 30
       @render()
-      @render_intro_animation()
       @audioView = new AudioView()
+      @render_intro_animation()
+      
     render: =>
       tmpl = '''
 				     <div class="row">
