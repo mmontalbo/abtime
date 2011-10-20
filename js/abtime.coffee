@@ -69,6 +69,29 @@ $(document).ready ->
       randomExercises
 
   ###
+  # AudioView
+  #
+  # Plays an audio file everytime it renders
+  ###
+
+  class AudioView extends Backbone.View
+
+    el : $ 'div#audio'
+
+    initialize:->
+      @render()
+
+    render: =>
+      tmpl='''
+              <audio id="gong" preload="auto" autobuffer autoplay>
+		<source src="<%= audiosrc %>"/>
+	      </audio>
+           '''
+      @audioEl = _.template(tmpl)
+      $(@el.html(@audioEl({audiosrc : 'media/gong.wav'})))
+      @
+
+  ###
   # AbExerciseView
   #
   # Creates main exercise view DOM, including the current exercise
@@ -103,7 +126,7 @@ $(document).ready ->
       @secs_left = 30
       @render()
       @render_intro_animation()
-
+      @audioView = new AudioView()
     render: =>
       tmpl = '''
 				     <div class="row">

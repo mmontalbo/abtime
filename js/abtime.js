@@ -4,8 +4,7 @@
   # clean-way-to-remove-element-from-javascript-array-with-jquery-coffeescript
   #
   # removes item at index e from array
-  */
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
+  */  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
     ctor.prototype = parent.prototype;
@@ -20,7 +19,7 @@
     }
   };
   $(document).ready(function() {
-    var AbExerciseCollection, AbExerciseView, AbTimeApp, NUM_EXERCISES_IN_WORKOUT, NUM_FLASHES_ON_INTRO, StartStopButtonView, WorkoutProgressView;
+    var AbExerciseCollection, AbExerciseView, AbTimeApp, AudioView, NUM_EXERCISES_IN_WORKOUT, NUM_FLASHES_ON_INTRO, StartStopButtonView, WorkoutProgressView;
     NUM_EXERCISES_IN_WORKOUT = 10;
     NUM_FLASHES_ON_INTRO = 3;
     /*
@@ -104,9 +103,11 @@
           randomExercise = exercises[rand];
           randomExercises.push(randomExercise);
           randomExerciseName = randomExercise.get("name");
-          if ((_ref = exercisesChosen[randomExerciseName]) == null) {
+                    if ((_ref = exercisesChosen[randomExerciseName]) != null) {
+            _ref;
+          } else {
             exercisesChosen[randomExerciseName] = 0;
-          }
+          };
           if (r === 1) {
             exercises.remove(randomExercise);
           } else if (exercisesChosen[randomExerciseName] < r - 1) {
@@ -118,6 +119,32 @@
         return randomExercises;
       };
       return AbExerciseCollection;
+    })();
+    /*
+      # AudioView
+      #
+      # Plays an audio file everytime it renders
+      */
+    AudioView = (function() {
+      __extends(AudioView, Backbone.View);
+      function AudioView() {
+        this.render = __bind(this.render, this);
+        AudioView.__super__.constructor.apply(this, arguments);
+      }
+      AudioView.prototype.el = $('div#audio');
+      AudioView.prototype.initialize = function() {
+        return this.render();
+      };
+      AudioView.prototype.render = function() {
+        var tmpl;
+        tmpl = '              <audio id="gong" preload="auto" autobuffer autoplay>\n<source src="<%= audiosrc %>"/>\n	      </audio>';
+        this.audioEl = _.template(tmpl);
+        $(this.el.html(this.audioEl({
+          audiosrc: 'media/gong.wav'
+        })));
+        return this;
+      };
+      return AudioView;
     })();
     /*
       # AbExerciseView
@@ -177,7 +204,8 @@
         this.current_exercise = ex;
         this.secs_left = 30;
         this.render();
-        return this.render_intro_animation();
+        this.render_intro_animation();
+        return this.audioView = new AudioView();
       };
       AbExerciseView.prototype.render = function() {
         var clock_tmpl, tmpl;
