@@ -168,6 +168,7 @@
       }
       AbExerciseView.prototype.initialize = function() {
         this.current_exercise = "";
+        this.current_video = "media/revcrunches.m4v";
         this.num_flashes = 0;
         this.secs_left = 30;
         return this.render();
@@ -200,24 +201,31 @@
         }
         return this;
       };
-      AbExerciseView.prototype.render_next_exercise = function(ex, secs) {
+      AbExerciseView.prototype.render_next_exercise = function(ex, secs, video) {
+        var tmpl;
         this.current_exercise = ex;
         this.secs_left = 30;
+        this.current_video = video;
         this.render();
         this.audioView = new AudioView();
-        return this.render_intro_animation();
+        this.render_intro_animation();
+        tmpl = '              <video autoplay loop>\n  <source src="media/<%= vid %>" type="video/mp4" />\n  Your browser does not support the video tag.\n</video>';
+        this.exercise_video = _.template(tmpl);
+        return $(this.el.find("div#exercise_video").html(this.exercise_video({
+          vid: this.current_video
+        })));
       };
       AbExerciseView.prototype.render = function() {
         var clock_tmpl, tmpl;
         tmpl = '<div class="row">\n  					   <div class="span16">\n    					   <h2 class="currentExcercise"><%= ex %></h2>\n  					   </div>\n </div>\n <div class="row" id="clock">';
         if (this.secs_left > 10) {
-          clock_tmpl = '<div class="span8 offset4">\n  0:<span><%= secs_left %></span>\n</div>';
+          clock_tmpl = '<div class="span8 offset4">\n  0:<span class="timerSeconds"><%= secs_left %></span>\n</div>';
         } else {
-          clock_tmpl = '<span class="lastTenSeconds"><%= secs_left %></span>';
+          clock_tmpl = '<div class="span8 offset4">\n   <span class="timerSeconds lastTenSeconds"><%= secs_left %></span>\n</div>';
         }
         tmpl = tmpl + clock_tmpl + '</div>';
         this.ab_exercise_view = _.template(tmpl);
-        $(this.el.html(this.ab_exercise_view({
+        $(this.el.find("div#exercise").html(this.ab_exercise_view({
           ex: this.current_exercise,
           secs_left: this.secs_left
         })));
@@ -375,7 +383,7 @@
           exercises: this.exercises
         });
         this.abExerciseView = new AbExerciseView({
-          el: $('#view_firstPage')
+          el: $('#view_exercisePage')
         });
         this.abExerciseView.bind('intro_animation_end', this.start_workout_countdown);
         this.abExerciseView.bind('exercise_countdown_complete', this.exercise_countdown_complete);
@@ -383,13 +391,14 @@
         return this.abExerciseView.el.hide();
       };
       AbTimeApp.prototype.start_workout_intro = function() {
-        var name, secs;
+        var name, secs, video;
         secs = this.exercises[this.currentIndex].get("secs_in_countdown");
         name = this.exercises[this.currentIndex].get("name");
+        video = this.exercises[this.currentIndex].get("video");
         $("div#view_splashPage").hide();
         this.workoutProgressView.el.show();
         this.abExerciseView.el.show();
-        return this.abExerciseView.render_next_exercise(name, secs);
+        return this.abExerciseView.render_next_exercise(name, secs, video);
       };
       AbTimeApp.prototype.start_workout_countdown = function() {
         this.workoutProgressView.render_increment_progress(this.currentIndex);

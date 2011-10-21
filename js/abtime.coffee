@@ -101,6 +101,7 @@ $(document).ready ->
   class AbExerciseView extends Backbone.View
     initialize: ->
       @current_exercise = ""
+      @current_video = "media/revcrunches.m4v"
       @num_flashes = 0
       @secs_left = 30
       @render()
@@ -121,13 +122,23 @@ $(document).ready ->
         @num_flashes = 0
         @render_flash_low(@render_flash_normal)
       @
-    render_next_exercise: (ex, secs) =>
+    render_next_exercise: (ex, secs, video) =>
       @current_exercise = ex
       @secs_left = 30
+      @current_video = video
       @render()
       @audioView = new AudioView()
       @render_intro_animation()
-      
+
+      tmpl = '''
+              <video autoplay loop>
+      				  <source src="media/<%= vid %>" type="video/mp4" />
+      				  Your browser does not support the video tag.
+      				</video>
+             '''
+      @exercise_video = _.template(tmpl)
+      $(@el.find("div#exercise_video").html(@exercise_video({ vid : @current_video})))
+
     render: =>
       tmpl = '''
 				     <div class="row">
@@ -140,16 +151,18 @@ $(document).ready ->
       if @secs_left > 10
         clock_tmpl = '''
                      <div class="span8 offset4">
-                       0:<span><%= secs_left %></span>
+                       0:<span class="timerSeconds"><%= secs_left %></span>
                      </div>
                    '''
       else
         clock_tmpl = '''
-                     <span class="lastTenSeconds"><%= secs_left %></span>
+                     <div class="span8 offset4">
+                        <span class="timerSeconds lastTenSeconds"><%= secs_left %></span>
+                     </div>
                      '''
       tmpl = tmpl + clock_tmpl + '</div>'
       @ab_exercise_view = _.template(tmpl)
-      $(@el.html(@ab_exercise_view({ ex : @current_exercise, secs_left : @secs_left })))
+      $(@el.find("div#exercise").html(@ab_exercise_view({ ex : @current_exercise, secs_left : @secs_left })))
       @
 
     tick_countdown: =>
@@ -264,7 +277,7 @@ $(document).ready ->
       # Initialize views an get set of exercises
       @exercises = @abExerciseCollection.get_random_exercises()
       @workoutProgressView = new WorkoutProgressView(el: $('#timeline'), exercises : @exercises)
-      @abExerciseView = new AbExerciseView(el: $('#view_firstPage'))
+      @abExerciseView = new AbExerciseView(el: $('#view_exercisePage'))
 
       # Set up event binding
       @abExerciseView.bind('intro_animation_end', @start_workout_countdown)
@@ -278,10 +291,11 @@ $(document).ready ->
     start_workout_intro: =>
       secs = @exercises[@currentIndex].get("secs_in_countdown")
       name = @exercises[@currentIndex].get("name")
+      video = @exercises[@currentIndex].get("video")
       $("div#view_splashPage").hide()
       @workoutProgressView.el.show()
       @abExerciseView.el.show()
-      @abExerciseView.render_next_exercise(name,secs)
+      @abExerciseView.render_next_exercise(name,secs,video)
     start_workout_countdown: =>
       @workoutProgressView.render_increment_progress(@currentIndex)
       $(document).everyTime("1s","workoutCountdown",@abExerciseView.tick_countdown)

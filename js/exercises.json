@@ -1,11 +1,11 @@
 [
   {
     "name":"Crunches, reach for your toes",
-	"video":"revcrunches.m4v"
+	"video":"crunchestoes.m4v"
   },
   {
     "name":"Crunches, reach for your toes, hands to the floor",
-	"video":"revcrunches.m4v"
+	"video":"crunchestoes.m4v"
   },
   {
     "name":"Reverse crunches",
@@ -17,11 +17,11 @@
   },
   {
     "name":"Lawn chairs",
-	"video":"revcrunches.m4v"
+	"video":"halflawn.m4v"
   },
   {
     "name":"Half lawn chairs",
-	"video":"revcrunches.m4v"
+	"video":"halflawn.m4v"
   },
   {
     "name":"Bikes",
@@ -37,15 +37,15 @@
   },
   {
     "name":"6-inch holds",
-	"video":"revcrunches.m4v"
+	"video":"sixinchholds.m4v"
   },
   {
     "name":"6-inch holds, pulsating",
-	"video":"revcrunches.m4v"
+	"video":"sixinchholds.m4v"
   },
   {
     "name":"6-inch holds, feet wide",
-	"video":"revcrunches.m4v"
+	"video":"sixinchholds.m4v"
   },
   {
     "name":"Rope climb",
@@ -60,15 +60,15 @@
 	"video":"revcrunches.m4v"
   },
   {
-    "name":"Planks",
-	"video":"revcrunches.m4v"
+    "name":"Plank",
+	"video":"plank.m4v"
   },
   {
     "name":"Planks, alternating side kicks",
-	"video":"revcrunches.m4v"
+	"video":"plank.m4v"
   },
   {
     "name":"Planks, alternating vertical kicks",
-	"video":"revcrunches.m4v"
+	"video":"plank.m4v"
   }
 ]

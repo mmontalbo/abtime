@@ -79,10 +79,13 @@
 		div#timeline div{
 			text-align:center;
 		}
-		
+
+        span.timerSeconds {
+       }
+
 		span.lastTenSeconds {
+            line-height:67pt;
 			font-size:67pt;
-			line-height:67pt;
 			color:red;
 			font-weight:bold;
 		}
@@ -100,8 +103,8 @@
 			width:400px;
 			height:225px;
 			display:block;
-			margin:25px auto;
-			border:5px solid #333;
+			margin:25px auto 0 auto;
+			border:2px solid #777;
 			border-radius:5px;
 		}
 
@@ -122,19 +125,19 @@
 				</div>
 			</div>
 			<div class="view" id="view_splashPage">
+			  	<div id="exercise">
 				<div class="row">
 					<div class="span16">
 						<h2>Press start.</h2>
 					</div>	
 				</div>
-				<video autoplay loop>
-				  <source src="media/revcrunches.m4v" type="video/mp4" />
-				  Your browser does not support the video tag.
-				</video>
+				</div>
 			</div>
-			<div class="view" id="view_firstPage">
-
+			<div class="view" id="view_exercisePage">
+				<div id="exercise"></div>
+				<div id="exercise_video"></div>
 			</div>
+			<div id="video_container"></div>
 
 			<div id="audio"></div>
 
