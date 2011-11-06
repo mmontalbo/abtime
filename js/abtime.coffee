@@ -308,11 +308,13 @@ $(document).ready ->
       $("div#view_splashPage").hide()
       @workoutProgressView.el.show()
       @abExerciseView.el.show()
+      @startStopButton.el.hide()
       callback = -> fetch_first_exercise
       setTimeout @fetch_first_exercise, 3000
       #$(document).oneTime("3s",@abExerciseView.render_next_exercise(name,secs,video))
     fetch_first_exercise: =>
       @abExerciseView.render_next_exercise(@name,@secs,@video)
+      @startStopButton.el.show()
     start_workout_countdown: =>
       @workoutProgressView.render_increment_progress(@currentIndex)
       $(document).everyTime("1s","workoutCountdown",@abExerciseView.tick_countdown)

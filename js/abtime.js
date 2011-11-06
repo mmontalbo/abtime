@@ -407,13 +407,15 @@
         $("div#view_splashPage").hide();
         this.workoutProgressView.el.show();
         this.abExerciseView.el.show();
+        this.startStopButton.el.hide();
         callback = function() {
           return fetch_first_exercise;
         };
         return setTimeout(this.fetch_first_exercise, 3000);
       };
       AbTimeApp.prototype.fetch_first_exercise = function() {
-        return this.abExerciseView.render_next_exercise(this.name, this.secs, this.video);
+        this.abExerciseView.render_next_exercise(this.name, this.secs, this.video);
+        return this.startStopButton.el.show();
       };
       AbTimeApp.prototype.start_workout_countdown = function() {
         this.workoutProgressView.render_increment_progress(this.currentIndex);
