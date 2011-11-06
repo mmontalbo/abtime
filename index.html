@@ -44,6 +44,7 @@
 		div#clock{
 			font-size:37pt;
 			text-align:center;
+			height:90px;
 		}
 		div#clock div{
 			padding:30px 0;
@@ -84,7 +85,6 @@
        }
 
 		span.lastTenSeconds {
-            line-height:67pt;
 			font-size:67pt;
 			color:red;
 			font-weight:bold;
@@ -134,9 +134,19 @@
 				</div>
 			</div>
 			<div class="view" id="view_exercisePage">
-				<div id="exercise"></div>
+				<div id="exercise">
+					<div class="row">
+				  		<div class="span16">
+  					   		<h2 class="currentExcercise">Get ready!</h2>
+					   	</div>
+					 </div>
+					 <div class="row" id="clock"><div class="span8 offset4"></span>
+					</div></div>
+				</div>
+				
 				<div id="exercise_video"></div>
 			</div>
+			
 			<div id="video_container"></div>
 
 			<div id="audio"></div>

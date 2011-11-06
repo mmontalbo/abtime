@@ -101,10 +101,10 @@ $(document).ready ->
   class AbExerciseView extends Backbone.View
     initialize: ->
       @current_exercise = ""
-      @current_video = "media/revcrunches.m4v"
+      @current_video = ""
       @num_flashes = 0
       @secs_left = 30
-      @render()
+      @render
 
     intro_animation_end: =>
       @trigger("intro_animation_end")
@@ -132,8 +132,9 @@ $(document).ready ->
 
       tmpl = '''
               <video autoplay loop>
-      				  <source src="media/<%= vid %>" type="video/mp4" />
-      				  Your browser does not support the video tag.
+      				  <source src="media/<%= vid %>.m4v" type="video/mp4" />
+      				  <source src="media/<%= vid %>.webm" type="video/webm" />
+      				  Your browser does not support the video tag. Please upgrade your browser.
       				</video>
              '''
       @exercise_video = _.template(tmpl)
@@ -164,6 +165,18 @@ $(document).ready ->
       @ab_exercise_view = _.template(tmpl)
       $(@el.find("div#exercise").html(@ab_exercise_view({ ex : @current_exercise, secs_left : @secs_left })))
       @
+
+    resetView: =>
+      tmpl = '''
+				     <div class="row">
+  					   <div class="span16">
+    					   <h2 class="currentExcercise">Get Ready!</h2>
+  					   </div>
+				      </div>
+              '''
+      @ab_exercise_view = _.template(tmpl)
+      $(@el.find("div#exercise").html(@ab_exercise_view({})))
+      $(@el.find("div#exercise_video").html(""))
 
     tick_countdown: =>
       @secs_left--
@@ -289,13 +302,17 @@ $(document).ready ->
 
 
     start_workout_intro: =>
-      secs = @exercises[@currentIndex].get("secs_in_countdown")
-      name = @exercises[@currentIndex].get("name")
-      video = @exercises[@currentIndex].get("video")
+      @secs = @exercises[@currentIndex].get("secs_in_countdown")
+      @name = @exercises[@currentIndex].get("name")
+      @video = @exercises[@currentIndex].get("video")
       $("div#view_splashPage").hide()
       @workoutProgressView.el.show()
       @abExerciseView.el.show()
-      @abExerciseView.render_next_exercise(name,secs,video)
+      callback = -> fetch_first_exercise
+      setTimeout @fetch_first_exercise, 3000
+      #$(document).oneTime("3s",@abExerciseView.render_next_exercise(name,secs,video))
+    fetch_first_exercise: =>
+      @abExerciseView.render_next_exercise(@name,@secs,@video)
     start_workout_countdown: =>
       @workoutProgressView.render_increment_progress(@currentIndex)
       $(document).everyTime("1s","workoutCountdown",@abExerciseView.tick_countdown)
@@ -314,4 +331,6 @@ $(document).ready ->
       $(document).stopTime("workoutCountdown")
       @populate_workout_views()
       $("div#view_splashPage").show()
+      @abExerciseView.resetView()
+
   window.app = new AbTimeApp
