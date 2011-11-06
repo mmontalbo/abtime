@@ -131,7 +131,7 @@ $(document).ready ->
       @render_intro_animation()
 
       tmpl = '''
-              <video autoplay loop>
+              <video autoplay loop onended="this.play()">
       				  <source src="media/<%= vid %>.m4v" type="video/mp4" />
       				  <source src="media/<%= vid %>.webm" type="video/webm" />
       				  Your browser does not support the video tag. Please upgrade your browser.
