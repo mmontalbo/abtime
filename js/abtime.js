@@ -210,7 +210,7 @@
         this.render();
         this.audioView = new AudioView();
         this.render_intro_animation();
-        tmpl = '              <video autoplay loop onended="this.play()">\n  <source src="media/<%= vid %>.m4v" type="video/mp4" />\n  <source src="media/<%= vid %>.webm" type="video/webm" />\n  Your browser does not support the video tag. Please upgrade your browser.\n</video>';
+        tmpl = '              <video autoplay loop onended="this.play()" preload="auto">\n  <source src="media/<%= vid %>.webm" type="video/webm" />\n  <source src="media/<%= vid %>.m4v" type="video/mp4" />\n  Your browser does not support the video tag. Please upgrade your browser.\n</video>';
         this.exercise_video = _.template(tmpl);
         return $(this.el.find("div#exercise_video").html(this.exercise_video({
           vid: this.current_video
@@ -365,8 +365,8 @@
         this.stop_workout_countdown = __bind(this.stop_workout_countdown, this);
         this.exercise_countdown_complete = __bind(this.exercise_countdown_complete, this);
         this.start_workout_countdown = __bind(this.start_workout_countdown, this);
-        this.fetch_first_exercise = __bind(this.fetch_first_exercise, this);
         this.start_workout_intro = __bind(this.start_workout_intro, this);
+        this.start_workout = __bind(this.start_workout, this);
         this.populate_workout_views = __bind(this.populate_workout_views, this);
         this.populate_views = __bind(this.populate_views, this);
         AbTimeApp.__super__.constructor.apply(this, arguments);
@@ -381,7 +381,7 @@
         this.startStopButton = new StartStopButtonView({
           el: $('#controls')
         });
-        this.startStopButton.bind("start_clicked", this.start_workout_intro);
+        this.startStopButton.bind("start_clicked", this.start_workout);
         this.startStopButton.bind("stop_clicked", this.stop_workout);
         return this.populate_workout_views();
       };
@@ -399,23 +399,20 @@
         this.workoutProgressView.el.hide();
         return this.abExerciseView.el.hide();
       };
-      AbTimeApp.prototype.start_workout_intro = function() {
-        var callback;
-        this.secs = this.exercises[this.currentIndex].get("secs_in_countdown");
-        this.name = this.exercises[this.currentIndex].get("name");
-        this.video = this.exercises[this.currentIndex].get("video");
-        $("div#view_splashPage").hide();
-        this.workoutProgressView.el.show();
-        this.abExerciseView.el.show();
+      AbTimeApp.prototype.start_workout = function() {
         this.startStopButton.el.hide();
-        callback = function() {
-          return fetch_first_exercise;
-        };
-        return setTimeout(this.fetch_first_exercise, 3000);
+        $("div#view_splashPage").hide();
+        this.abExerciseView.el.show();
+        return setTimeout(this.start_workout_intro, 3000);
       };
-      AbTimeApp.prototype.fetch_first_exercise = function() {
-        this.abExerciseView.render_next_exercise(this.name, this.secs, this.video);
-        return this.startStopButton.el.show();
+      AbTimeApp.prototype.start_workout_intro = function() {
+        var name, secs, video;
+        secs = this.exercises[this.currentIndex].get("secs_in_countdown");
+        name = this.exercises[this.currentIndex].get("name");
+        video = this.exercises[this.currentIndex].get("video");
+        this.workoutProgressView.el.show();
+        this.startStopButton.el.show();
+        return this.abExerciseView.render_next_exercise(name, secs, video);
       };
       AbTimeApp.prototype.start_workout_countdown = function() {
         this.workoutProgressView.render_increment_progress(this.currentIndex);

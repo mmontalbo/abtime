@@ -131,9 +131,9 @@ $(document).ready ->
       @render_intro_animation()
 
       tmpl = '''
-              <video autoplay loop onended="this.play()">
-      				  <source src="media/<%= vid %>.m4v" type="video/mp4" />
+              <video autoplay loop onended="this.play()" preload="auto">
       				  <source src="media/<%= vid %>.webm" type="video/webm" />
+      				  <source src="media/<%= vid %>.m4v" type="video/mp4" />
       				  Your browser does not support the video tag. Please upgrade your browser.
       				</video>
              '''
@@ -281,7 +281,7 @@ $(document).ready ->
       @startStopButton = new StartStopButtonView(el : $('#controls'))
 
       # Set up event binding for start/stop button
-      @startStopButton.bind("start_clicked", @start_workout_intro)
+      @startStopButton.bind("start_clicked", @start_workout)
       @startStopButton.bind("stop_clicked", @stop_workout)
 
       @populate_workout_views()
@@ -300,21 +300,22 @@ $(document).ready ->
       @workoutProgressView.el.hide()
       @abExerciseView.el.hide()
 
-
-    start_workout_intro: =>
-      @secs = @exercises[@currentIndex].get("secs_in_countdown")
-      @name = @exercises[@currentIndex].get("name")
-      @video = @exercises[@currentIndex].get("video")
-      $("div#view_splashPage").hide()
-      @workoutProgressView.el.show()
-      @abExerciseView.el.show()
+    start_workout: =>
       @startStopButton.el.hide()
-      callback = -> fetch_first_exercise
-      setTimeout @fetch_first_exercise, 3000
-      #$(document).oneTime("3s",@abExerciseView.render_next_exercise(name,secs,video))
-    fetch_first_exercise: =>
-      @abExerciseView.render_next_exercise(@name,@secs,@video)
+      $("div#view_splashPage").hide()
+      #@workoutProgressView.el.show()
+      @abExerciseView.el.show()
+      setTimeout @start_workout_intro, 3000
+    start_workout_intro: =>
+      secs = @exercises[@currentIndex].get("secs_in_countdown")
+      name = @exercises[@currentIndex].get("name")
+      video = @exercises[@currentIndex].get("video")
+      #$("div#view_splashPage").hide()
+      @workoutProgressView.el.show()
       @startStopButton.el.show()
+      @abExerciseView.render_next_exercise(name,secs,video)
+      #callback = -> fetch_first_exercise
+      #$(document).oneTime("3s",@abExerciseView.render_next_exercise(name,secs,video))
     start_workout_countdown: =>
       @workoutProgressView.render_increment_progress(@currentIndex)
       $(document).everyTime("1s","workoutCountdown",@abExerciseView.tick_countdown)
