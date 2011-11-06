@@ -166,7 +166,7 @@ $(document).ready ->
       $(@el.find("div#exercise").html(@ab_exercise_view({ ex : @current_exercise, secs_left : @secs_left })))
       @
 
-    resetView: =>
+    reset_view: =>
       tmpl = '''
 				     <div class="row">
   					   <div class="span16">
@@ -301,21 +301,21 @@ $(document).ready ->
       @abExerciseView.el.hide()
 
     start_workout: =>
-      @startStopButton.el.hide()
-      $("div#view_splashPage").hide()
-      #@workoutProgressView.el.show()
-      @abExerciseView.el.show()
-      setTimeout @start_workout_intro, 3000
+      if (@currentIndex is 0)
+        @abExerciseView.reset_view()
+        @startStopButton.el.hide()
+        $("div#view_splashPage").hide()
+        @abExerciseView.el.show()
+        setTimeout @start_workout_intro, 3000
+      else
+        @start_workout_intro
     start_workout_intro: =>
       secs = @exercises[@currentIndex].get("secs_in_countdown")
       name = @exercises[@currentIndex].get("name")
       video = @exercises[@currentIndex].get("video")
-      #$("div#view_splashPage").hide()
       @workoutProgressView.el.show()
       @startStopButton.el.show()
       @abExerciseView.render_next_exercise(name,secs,video)
-      #callback = -> fetch_first_exercise
-      #$(document).oneTime("3s",@abExerciseView.render_next_exercise(name,secs,video))
     start_workout_countdown: =>
       @workoutProgressView.render_increment_progress(@currentIndex)
       $(document).everyTime("1s","workoutCountdown",@abExerciseView.tick_countdown)
@@ -334,6 +334,6 @@ $(document).ready ->
       $(document).stopTime("workoutCountdown")
       @populate_workout_views()
       $("div#view_splashPage").show()
-      @abExerciseView.resetView()
+      @abExerciseView.reset_view()
 
   window.app = new AbTimeApp
