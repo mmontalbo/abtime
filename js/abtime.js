@@ -210,7 +210,7 @@
         this.render();
         this.audioView = new AudioView();
         this.render_intro_animation();
-        tmpl = '              <video autoplay loop onended="this.play()" preload="auto">\n  <source src="media/<%= vid %>.webm" type="video/webm" />\n  <source src="media/<%= vid %>.m4v" type="video/mp4" />\n  Your browser does not support the video tag. Please upgrade your browser.\n</video>';
+        tmpl = '              <video autoplay loop onended="this.play()" poster="media/video_bg.jpg">\n  <source src="media/<%= vid %>.webm" type="video/webm" />\n                <source src="media/<%= vid %>.m4v" type="video/m4v" />\n  Your browser does not support the video tag. Please upgrade your browser.\n</video>';
         this.exercise_video = _.template(tmpl);
         return $(this.el.find("div#exercise_video").html(this.exercise_video({
           vid: this.current_video
