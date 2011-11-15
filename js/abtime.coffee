@@ -88,7 +88,7 @@ $(document).ready ->
 	      </audio>
            '''
       @audioEl = _.template(tmpl)
-      $(@el.html(@audioEl({audiosrc : 'media/gong.wav'})))
+      $(@el.html(@audioEl({audiosrc : 'media/Ding.wav'})))
       @
 
   ###
@@ -194,23 +194,39 @@ $(document).ready ->
   class WorkoutProgressView extends Backbone.View
     initialize: ->
       @workoutExercises = @options.exercises
+      # orange : 4
+      # red : 4
+      # blue : 4
+      # green : 6
+      @exerciseColors =
+        "crunch"      : "orange" # 4
+        "lawn_chair"  : "green" # 2
+        "bikes"       : "red"    # 2
+        "crossover"   : "green" # 1
+        "hold"        : "blue"  # 3
+        "climb"       : "red"    # 1
+        "jack_knives" : "red"    # 1
+        "frogs"       : "green" # 1
+        "plank"       : "blue"  # 3
       @render()
 
     render: =>
       @names = (ex.get('name') for ex in @workoutExercises)
+
       tmpl = '''
              <div class="span16">
-               <% _.each(exercises, function(exercise) { %>
-                 <div class="exercise"><%= exercise %></div>
+               <%
+                _.each(names, function(name) { %>
+                 <div class="exercise"><%= name %></div>
                <% }); %>
              </div>
              '''
       @exercise_progress_bar = _.template(tmpl)
-      $(@el.html(@exercise_progress_bar({ exercises : @names })))
+      $(@el.html(@exercise_progress_bar({ names : @names })))
       @
 
     render_increment_progress: (i) =>
-      $("div.exercise").eq(i).css("background-color","blue")
+      $("div.exercise").eq(i).addClass(@exerciseColors[@workoutExercises[i].get("type")])
 
     render_clear_progress: =>
       $("div.exercise").css("background-color","gray")

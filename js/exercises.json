@@ -1,74 +1,92 @@
 [
   {
     "name":"Crunches: reach for your toes",
-	"video":"crunchestoes"
+	"video":"crunchestoes",
+	"type":"crunch"
   },
   {
     "name":"Crunches: reach for your toes, hands to the floor",
-	"video":"crunchestoes"
+	"video":"crunchestoes",
+	"type":"crunch"
   },
   {
     "name":"Reverse crunches",
-	"video":"revcrunches"
+	"video":"revcrunches",
+	"type":"crunch"
   },
   {
     "name":"Reverse crunches: with a twist",
-	"video":"revcrunches"
+	"video":"revcrunches",
+	"type":"crunch"
   },
   {
     "name":"Lawn chairs",
-	"video":"halflawn"
+	"video":"halflawn",
+	"type":"lawn_chair"
   },
   {
     "name":"Half lawn chairs",
-	"video":"halflawn"
+	"video":"halflawn",
+	"type":"lawn_chair"
   },
   {
     "name":"Bikes",
-	"video":"revcrunches"
+	"video":"revcrunches",
+	"type":"bikes"
   },
   {
     "name":"Slow bikes",
-	"video":"revcrunches"
+	"video":"revcrunches",
+	"type":"bikes"
   },
   {
     "name":"Cross-over reaches",
-	"video":"revcrunches"
+	"video":"revcrunches",
+	"type":"crossover"
   },
   {
     "name":"6-inch holds",
-	"video":"sixinchholds"
+	"video":"sixinchholds",
+	"type":"hold"
   },
   {
     "name":"6-inch holds: pulsating",
-	"video":"sixinchholds"
+	"video":"sixinchholds",
+	"type":"hold"
   },
   {
     "name":"6-inch holds: feet wide",
-	"video":"sixinchholds"
+	"video":"sixinchholds",
+	"type":"hold"
   },
   {
     "name":"Rope climb",
-	"video":"revcrunches"
+	"video":"revcrunches",
+	"type":"climb"
   },
   {
     "name":"Jack knives",
-	"video":"revcrunches"
+	"video":"revcrunches",
+	"type":"jack_knives"
   },
   {
     "name":"Frogs: 3 seconds",
-	"video":"revcrunches"
+	"video":"revcrunches",
+	"type":"frogs"
   },
   {
     "name":"Plank",
-	"video":"plank"
+	"video":"plank",
+	"type":"plank"
   },
   {
     "name":"Planks: alternating side kicks",
-	"video":"plank"
+	"video":"plank",
+	"type":"plank"
   },
   {
     "name":"Planks: alternating vertical kicks",
-	"video":"plank"
+	"video":"plank",
+	"type":"plank"
   }
 ]

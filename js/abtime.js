@@ -4,7 +4,8 @@
   # clean-way-to-remove-element-from-javascript-array-with-jquery-coffeescript
   #
   # removes item at index e from array
-  */  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
+  */
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
     ctor.prototype = parent.prototype;
@@ -103,11 +104,9 @@
           randomExercise = exercises[rand];
           randomExercises.push(randomExercise);
           randomExerciseName = randomExercise.get("name");
-                    if ((_ref = exercisesChosen[randomExerciseName]) != null) {
-            _ref;
-          } else {
+          if ((_ref = exercisesChosen[randomExerciseName]) == null) {
             exercisesChosen[randomExerciseName] = 0;
-          };
+          }
           if (r === 1) {
             exercises.remove(randomExercise);
           } else if (exercisesChosen[randomExerciseName] < r - 1) {
@@ -140,7 +139,7 @@
         tmpl = '              <audio id="gong" preload="auto" autobuffer autoplay>\n<source src="<%= audiosrc %>"/>\n	      </audio>';
         this.audioEl = _.template(tmpl);
         $(this.el.html(this.audioEl({
-          audiosrc: 'media/gong.wav'
+          audiosrc: 'media/Ding.wav'
         })));
         return this;
       };
@@ -265,6 +264,17 @@
       }
       WorkoutProgressView.prototype.initialize = function() {
         this.workoutExercises = this.options.exercises;
+        this.exerciseColors = {
+          "crunch": "orange",
+          "lawn_chair": "green",
+          "bikes": "red",
+          "crossover": "green",
+          "hold": "blue",
+          "climb": "red",
+          "jack_knives": "red",
+          "frogs": "green",
+          "plank": "blue"
+        };
         return this.render();
       };
       WorkoutProgressView.prototype.render = function() {
@@ -279,15 +289,15 @@
           }
           return _results;
         }).call(this);
-        tmpl = '<div class="span16">\n  <% _.each(exercises, function(exercise) { %>\n    <div class="exercise"><%= exercise %></div>\n  <% }); %>\n</div>';
+        tmpl = '<div class="span16">\n  <%\n   _.each(names, function(name) { %>\n    <div class="exercise"><%= name %></div>\n  <% }); %>\n</div>';
         this.exercise_progress_bar = _.template(tmpl);
         $(this.el.html(this.exercise_progress_bar({
-          exercises: this.names
+          names: this.names
         })));
         return this;
       };
       WorkoutProgressView.prototype.render_increment_progress = function(i) {
-        return $("div.exercise").eq(i).css("background-color", "blue");
+        return $("div.exercise").eq(i).addClass(this.exerciseColors[this.workoutExercises[i].get("type")]);
       };
       WorkoutProgressView.prototype.render_clear_progress = function() {
         return $("div.exercise").css("background-color", "gray");
