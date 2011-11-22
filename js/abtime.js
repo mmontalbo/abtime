@@ -4,8 +4,7 @@
   # clean-way-to-remove-element-from-javascript-array-with-jquery-coffeescript
   #
   # removes item at index e from array
-  */
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
+  */  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
     ctor.prototype = parent.prototype;
@@ -104,9 +103,11 @@
           randomExercise = exercises[rand];
           randomExercises.push(randomExercise);
           randomExerciseName = randomExercise.get("name");
-          if ((_ref = exercisesChosen[randomExerciseName]) == null) {
+                    if ((_ref = exercisesChosen[randomExerciseName]) != null) {
+            _ref;
+          } else {
             exercisesChosen[randomExerciseName] = 0;
-          }
+          };
           if (r === 1) {
             exercises.remove(randomExercise);
           } else if (exercisesChosen[randomExerciseName] < r - 1) {
@@ -201,18 +202,24 @@
         }
         return this;
       };
-      AbExerciseView.prototype.render_next_exercise = function(ex, secs, video) {
+      AbExerciseView.prototype.render_next_exercise = function(ex, secs, video, description) {
         var tmpl;
         this.current_exercise = ex;
         this.secs_left = 30;
         this.current_video = video;
+        this.current_description = description;
         this.render();
         this.audioView = new AudioView();
         this.render_intro_animation();
-        tmpl = '              <video autoplay loop onended="this.play()" poster="media/video_bg.jpg">\n  <source src="media/<%= vid %>.webm" type="video/webm" />\n                <source src="media/<%= vid %>.m4v" type="video/m4v" />\n  Your browser does not support the video tag. Please upgrade your browser.\n</video>';
+        if (this.current_video === "") {
+          tmpl = '<span class="exerciseDescription"><%= text %></span>';
+        } else {
+          tmpl = '                <video autoplay loop onended="this.play()" poster="media/video_bg.jpg">\n  <source src="media/<%= vid %>.webm" type="video/webm" />\n                  <source src="media/<%= vid %>.m4v" type="video/m4v" />\n  Your browser does not support the video tag. Please upgrade your browser.\n</video>';
+        }
         this.exercise_video = _.template(tmpl);
         return $(this.el.find("div#exercise_video").html(this.exercise_video({
-          vid: this.current_video
+          vid: this.current_video,
+          text: this.current_description
         })));
       };
       AbExerciseView.prototype.render = function() {
@@ -421,13 +428,14 @@
         }
       };
       AbTimeApp.prototype.start_workout_intro = function() {
-        var name, secs, video;
+        var description, name, secs, video;
         secs = this.exercises[this.currentIndex].get("secs_in_countdown");
         name = this.exercises[this.currentIndex].get("name");
         video = this.exercises[this.currentIndex].get("video");
+        description = this.exercises[this.currentIndex].get("description");
         this.workoutProgressView.el.show();
         this.startStopButton.el.show();
-        return this.abExerciseView.render_next_exercise(name, secs, video);
+        return this.abExerciseView.render_next_exercise(name, secs, video, description);
       };
       AbTimeApp.prototype.start_workout_countdown = function() {
         this.workoutProgressView.render_increment_progress(this.currentIndex);

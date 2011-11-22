@@ -122,23 +122,29 @@ $(document).ready ->
         @num_flashes = 0
         @render_flash_low(@render_flash_normal)
       @
-    render_next_exercise: (ex, secs, video) =>
+    render_next_exercise: (ex, secs, video, description) =>
       @current_exercise = ex
       @secs_left = 30
       @current_video = video
+      @current_description = description
       @render()
       @audioView = new AudioView()
       @render_intro_animation()
 
-      tmpl = '''
-              <video autoplay loop onended="this.play()" poster="media/video_bg.jpg">
-      				  <source src="media/<%= vid %>.webm" type="video/webm" />
-                <source src="media/<%= vid %>.m4v" type="video/m4v" />
-      				  Your browser does not support the video tag. Please upgrade your browser.
-      				</video>
+      if @current_video == ""
+        tmpl = '''
+              <span class="exerciseDescription"><%= text %></span>
              '''
+      else
+        tmpl = '''
+                <video autoplay loop onended="this.play()" poster="media/video_bg.jpg">
+        				  <source src="media/<%= vid %>.webm" type="video/webm" />
+                  <source src="media/<%= vid %>.m4v" type="video/m4v" />
+        				  Your browser does not support the video tag. Please upgrade your browser.
+        				</video>
+               '''
       @exercise_video = _.template(tmpl)
-      $(@el.find("div#exercise_video").html(@exercise_video({ vid : @current_video})))
+      $(@el.find("div#exercise_video").html(@exercise_video({ vid : @current_video, text : @current_description})))
 
     render: =>
       tmpl = '''
@@ -329,9 +335,10 @@ $(document).ready ->
       secs = @exercises[@currentIndex].get("secs_in_countdown")
       name = @exercises[@currentIndex].get("name")
       video = @exercises[@currentIndex].get("video")
+      description = @exercises[@currentIndex].get("description")
       @workoutProgressView.el.show()
       @startStopButton.el.show()
-      @abExerciseView.render_next_exercise(name,secs,video)
+      @abExerciseView.render_next_exercise(name,secs,video,description)
     start_workout_countdown: =>
       @workoutProgressView.render_increment_progress(@currentIndex)
       $(document).everyTime("1s","workoutCountdown",@abExerciseView.tick_countdown)
