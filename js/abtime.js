@@ -128,21 +128,13 @@
     AudioView = (function() {
       __extends(AudioView, Backbone.View);
       function AudioView() {
-        this.render = __bind(this.render, this);
         AudioView.__super__.constructor.apply(this, arguments);
       }
       AudioView.prototype.el = $('div#audio');
-      AudioView.prototype.initialize = function() {
-        return this.render();
-      };
-      AudioView.prototype.render = function() {
-        var tmpl;
-        tmpl = '              <audio id="gong" preload="auto" autobuffer autoplay>\n<source src="<%= audiosrc %>"/>\n	      </audio>';
-        this.audioEl = _.template(tmpl);
-        $(this.el.html(this.audioEl({
-          audiosrc: 'media/Ding.wav'
-        })));
-        return this;
+      AudioView.prototype.initialize = function() {};
+      AudioView.prototype.play = function() {
+        this.audioEl = this.el.find('audio').get(0);
+        return this.audioEl.play();
       };
       return AudioView;
     })();
@@ -170,6 +162,7 @@
       AbExerciseView.prototype.initialize = function() {
         this.current_exercise = "";
         this.current_video = "";
+        this.audioView = new AudioView();
         this.num_flashes = 0;
         this.secs_left = 30;
         return this.render;
@@ -209,7 +202,7 @@
         this.current_video = video;
         this.current_description = description;
         this.render();
-        this.audioView = new AudioView();
+        this.audioView.play();
         this.render_intro_animation();
         if (this.current_video === "") {
           tmpl = '<span class="exerciseDescription"><%= text %></span>';

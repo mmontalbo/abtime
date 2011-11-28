@@ -79,17 +79,11 @@ $(document).ready ->
     el : $ 'div#audio'
 
     initialize:->
-      @render()
 
-    render: =>
-      tmpl='''
-              <audio id="gong" preload="auto" autobuffer autoplay>
-		<source src="<%= audiosrc %>"/>
-	      </audio>
-           '''
-      @audioEl = _.template(tmpl)
-      $(@el.html(@audioEl({audiosrc : 'media/Ding.wav'})))
-      @
+    play:->
+      @audioEl = @el.find('audio').get(0)
+      @audioEl.play()
+
 
   ###
   # AbExerciseView
@@ -102,6 +96,7 @@ $(document).ready ->
     initialize: ->
       @current_exercise = ""
       @current_video = ""
+      @audioView = new AudioView()
       @num_flashes = 0
       @secs_left = 30
       @render
@@ -128,7 +123,7 @@ $(document).ready ->
       @current_video = video
       @current_description = description
       @render()
-      @audioView = new AudioView()
+      @audioView.play()
       @render_intro_animation()
 
       if @current_video == ""
