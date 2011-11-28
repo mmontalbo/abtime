@@ -79,10 +79,14 @@ $(document).ready ->
     el : $ 'div#audio'
 
     initialize:->
-
+      @startSound = @el.find('audio').get(0)
+      @endSound = @el.find('audio').get(1)
+      @
     play:->
-      @audioEl = @el.find('audio').get(0)
-      @audioEl.play()
+      @startSound.play()
+
+    end:->
+      @endSound.play()
 
 
   ###
@@ -96,7 +100,6 @@ $(document).ready ->
     initialize: ->
       @current_exercise = ""
       @current_video = ""
-      @audioView = new AudioView()
       @num_flashes = 0
       @secs_left = 30
       @render
@@ -123,7 +126,6 @@ $(document).ready ->
       @current_video = video
       @current_description = description
       @render()
-      @audioView.play()
       @render_intro_animation()
 
       if @current_video == ""
@@ -293,6 +295,7 @@ $(document).ready ->
       @abExerciseCollection.bind("reset",@populate_views)
       @abExerciseCollection.fetch()
       @currentIndex = 0
+      @audioView = new AudioView()
 
     populate_views: =>
       @startStopButton = new StartStopButtonView(el : $('#controls'))
@@ -334,6 +337,7 @@ $(document).ready ->
       @workoutProgressView.el.show()
       @startStopButton.el.show()
       @abExerciseView.render_next_exercise(name,secs,video,description)
+      @audioView.play()
     start_workout_countdown: =>
       @workoutProgressView.render_increment_progress(@currentIndex)
       $(document).everyTime("1s","workoutCountdown",@abExerciseView.tick_countdown)
@@ -353,5 +357,6 @@ $(document).ready ->
       @populate_workout_views()
       $("div#view_splashPage").show()
       @abExerciseView.reset_view()
+      @audioView.end()
 
   window.app = new AbTimeApp

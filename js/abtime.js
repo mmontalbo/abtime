@@ -131,10 +131,16 @@
         AudioView.__super__.constructor.apply(this, arguments);
       }
       AudioView.prototype.el = $('div#audio');
-      AudioView.prototype.initialize = function() {};
+      AudioView.prototype.initialize = function() {
+        this.startSound = this.el.find('audio').get(0);
+        this.endSound = this.el.find('audio').get(1);
+        return this;
+      };
       AudioView.prototype.play = function() {
-        this.audioEl = this.el.find('audio').get(0);
-        return this.audioEl.play();
+        return this.startSound.play();
+      };
+      AudioView.prototype.end = function() {
+        return this.endSound.play();
       };
       return AudioView;
     })();
@@ -162,7 +168,6 @@
       AbExerciseView.prototype.initialize = function() {
         this.current_exercise = "";
         this.current_video = "";
-        this.audioView = new AudioView();
         this.num_flashes = 0;
         this.secs_left = 30;
         return this.render;
@@ -202,7 +207,6 @@
         this.current_video = video;
         this.current_description = description;
         this.render();
-        this.audioView.play();
         this.render_intro_animation();
         if (this.current_video === "") {
           tmpl = '<span class="exerciseDescription"><%= text %></span>';
@@ -385,7 +389,8 @@
         this.abExerciseCollection = new AbExerciseCollection;
         this.abExerciseCollection.bind("reset", this.populate_views);
         this.abExerciseCollection.fetch();
-        return this.currentIndex = 0;
+        this.currentIndex = 0;
+        return this.audioView = new AudioView();
       };
       AbTimeApp.prototype.populate_views = function() {
         this.startStopButton = new StartStopButtonView({
@@ -428,7 +433,8 @@
         description = this.exercises[this.currentIndex].get("description");
         this.workoutProgressView.el.show();
         this.startStopButton.el.show();
-        return this.abExerciseView.render_next_exercise(name, secs, video, description);
+        this.abExerciseView.render_next_exercise(name, secs, video, description);
+        return this.audioView.play();
       };
       AbTimeApp.prototype.start_workout_countdown = function() {
         this.workoutProgressView.render_increment_progress(this.currentIndex);
@@ -452,7 +458,8 @@
         $(document).stopTime("workoutCountdown");
         this.populate_workout_views();
         $("div#view_splashPage").show();
-        return this.abExerciseView.reset_view();
+        this.abExerciseView.reset_view();
+        return this.audioView.end();
       };
       return AbTimeApp;
     })();
