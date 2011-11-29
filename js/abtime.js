@@ -282,26 +282,19 @@
         return this.render();
       };
       WorkoutProgressView.prototype.render = function() {
-        var ex, tmpl;
-        this.names = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.workoutExercises;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            ex = _ref[_i];
-            _results.push(ex.get('name'));
-          }
-          return _results;
-        }).call(this);
-        tmpl = '<div class="span16">\n  <%\n   _.each(names, function(name) { %>\n    <div class="exercise"><%= name %></div>\n  <% }); %>\n</div>';
-        this.exercise_progress_bar = _.template(tmpl);
-        $(this.el.html(this.exercise_progress_bar({
-          names: this.names
-        })));
+        var ex, _i, _len, _ref;
+        this.timelineHTML = "";
+        _ref = this.workoutExercises;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          ex = _ref[_i];
+          this.timelineHTML = this.timelineHTML + "<div class='exercise " + this.exerciseColors[ex.get('type')] + "'>" + ex.get('name') + "</div>";
+        }
+        this.timelineHTML = "<div class='span16'>" + this.timelineHTML + "</div>";
+        $(this.el.html(this.timelineHTML));
         return this;
       };
       WorkoutProgressView.prototype.render_increment_progress = function(i) {
-        return $("div.exercise").eq(i).addClass(this.exerciseColors[this.workoutExercises[i].get("type")]);
+        return $("div.exercise").eq(i).addClass("exerciseComplete");
       };
       WorkoutProgressView.prototype.render_clear_progress = function() {
         return $("div.exercise").css("background-color", "gray");
@@ -420,6 +413,7 @@
           this.startStopButton.el.hide();
           $("div#view_splashPage").hide();
           this.abExerciseView.el.show();
+          this.audioView.play();
           return setTimeout(this.start_workout_intro, 3000);
         } else {
           return this.start_workout_intro;
@@ -433,8 +427,7 @@
         description = this.exercises[this.currentIndex].get("description");
         this.workoutProgressView.el.show();
         this.startStopButton.el.show();
-        this.abExerciseView.render_next_exercise(name, secs, video, description);
-        return this.audioView.play();
+        return this.abExerciseView.render_next_exercise(name, secs, video, description);
       };
       AbTimeApp.prototype.start_workout_countdown = function() {
         this.workoutProgressView.render_increment_progress(this.currentIndex);
@@ -443,9 +436,11 @@
       AbTimeApp.prototype.exercise_countdown_complete = function() {
         this.currentIndex++;
         if (this.currentIndex < NUM_EXERCISES_IN_WORKOUT) {
+          this.audioView.play();
           $(document).stopTime("workoutCountdown");
           return this.start_workout_intro();
         } else {
+          this.audioView.end();
           return this.stop_workout_countdown();
         }
       };
@@ -458,8 +453,7 @@
         $(document).stopTime("workoutCountdown");
         this.populate_workout_views();
         $("div#view_splashPage").show();
-        this.abExerciseView.reset_view();
-        return this.audioView.end();
+        return this.abExerciseView.reset_view();
       };
       return AbTimeApp;
     })();

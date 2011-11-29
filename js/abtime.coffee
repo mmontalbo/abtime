@@ -202,34 +202,34 @@ $(document).ready ->
       # blue : 4
       # green : 6
       @exerciseColors =
-        "crunch"      : "orange" # 4
-        "lawn_chair"  : "green" # 2
-        "bikes"       : "red"    # 2
-        "crossover"   : "green" # 1
-        "hold"        : "blue"  # 3
-        "climb"       : "red"    # 1
-        "jack_knives" : "red"    # 1
-        "frogs"       : "green" # 1
-        "plank"       : "blue"  # 3
+        "crunch"      : "orange" # :4
+        "lawn_chair"  : "green" # :2
+        "bikes"       : "red"    # :2
+        "crossover"   : "green" # :1
+        "hold"        : "blue"  # :3
+        "climb"       : "red"    # :1
+        "jack_knives" : "red"    # :1
+        "frogs"       : "green" # :1
+        "plank"       : "blue"  # :3
+
+      #@names = (ex.get('name') for ex in @workoutExercises)
+      #@types = (ex.get('type') for ex in @workoutExercises)
+
       @render()
 
     render: =>
-      @names = (ex.get('name') for ex in @workoutExercises)
 
-      tmpl = '''
-             <div class="span16">
-               <%
-                _.each(names, function(name) { %>
-                 <div class="exercise"><%= name %></div>
-               <% }); %>
-             </div>
-             '''
-      @exercise_progress_bar = _.template(tmpl)
-      $(@el.html(@exercise_progress_bar({ names : @names })))
+      @timelineHTML = ""
+      for ex in @workoutExercises
+        @timelineHTML = @timelineHTML + "<div class='exercise "+@exerciseColors[ex.get('type')]+"'>" + ex.get('name') + "</div>"
+
+      @timelineHTML = "<div class='span16'>"+@timelineHTML+"</div>"
+
+      $(@el.html(@timelineHTML))
       @
 
     render_increment_progress: (i) =>
-      $("div.exercise").eq(i).addClass(@exerciseColors[@workoutExercises[i].get("type")])
+      $("div.exercise").eq(i).addClass("exerciseComplete")
 
     render_clear_progress: =>
       $("div.exercise").css("background-color","gray")
@@ -326,6 +326,7 @@ $(document).ready ->
         @startStopButton.el.hide()
         $("div#view_splashPage").hide()
         @abExerciseView.el.show()
+        @audioView.play()
         setTimeout @start_workout_intro, 3000
       else
         @start_workout_intro
@@ -337,16 +338,17 @@ $(document).ready ->
       @workoutProgressView.el.show()
       @startStopButton.el.show()
       @abExerciseView.render_next_exercise(name,secs,video,description)
-      @audioView.play()
     start_workout_countdown: =>
       @workoutProgressView.render_increment_progress(@currentIndex)
       $(document).everyTime("1s","workoutCountdown",@abExerciseView.tick_countdown)
     exercise_countdown_complete: =>
       @currentIndex++
       if @currentIndex < NUM_EXERCISES_IN_WORKOUT
+        @audioView.play()
         $(document).stopTime("workoutCountdown")
         @start_workout_intro()
       else
+        @audioView.end()
         @stop_workout_countdown()
     stop_workout_countdown: =>
       @startStopButton.toggle_btn_state()
@@ -357,6 +359,5 @@ $(document).ready ->
       @populate_workout_views()
       $("div#view_splashPage").show()
       @abExerciseView.reset_view()
-      @audioView.end()
 
   window.app = new AbTimeApp
