@@ -4,7 +4,8 @@
   # clean-way-to-remove-element-from-javascript-array-with-jquery-coffeescript
   #
   # removes item at index e from array
-  */  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
+  */
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
     ctor.prototype = parent.prototype;
@@ -32,6 +33,7 @@
     AbExerciseCollection = (function() {
       __extends(AbExerciseCollection, Backbone.Collection);
       function AbExerciseCollection() {
+        this.move_exercise_type_to_end = __bind(this.move_exercise_type_to_end, this);
         this.get_random_exercises = __bind(this.get_random_exercises, this);
         this.get_exercises = __bind(this.get_exercises, this);
         AbExerciseCollection.__super__.constructor.apply(this, arguments);
@@ -103,11 +105,9 @@
           randomExercise = exercises[rand];
           randomExercises.push(randomExercise);
           randomExerciseName = randomExercise.get("name");
-                    if ((_ref = exercisesChosen[randomExerciseName]) != null) {
-            _ref;
-          } else {
+          if ((_ref = exercisesChosen[randomExerciseName]) == null) {
             exercisesChosen[randomExerciseName] = 0;
-          };
+          }
           if (r === 1) {
             exercises.remove(randomExercise);
           } else if (exercisesChosen[randomExerciseName] < r - 1) {
@@ -116,7 +116,33 @@
             exercises.remove(randomExercise);
           }
         }
-        return randomExercises;
+        return this.move_exercise_type_to_end(randomExercises, "plank");
+      };
+      /*
+          # move_exercise_type_to_end
+          #
+          # @param exercises array of exercise models
+          # @param type string type of exercise to move to the end
+          #
+          # @return exercises array with all exercises of the given type moved to the end
+          */
+      AbExerciseCollection.prototype.move_exercise_type_to_end = function(exercises, type) {
+        var e, i, swapIndex;
+        swapIndex = exercises.length - 1;
+        while (exercises[swapIndex].get("type") === type) {
+          swapIndex--;
+        }
+        i = swapIndex;
+        while (i > -1) {
+          if (exercises[i].get("type") === type) {
+            e = exercises[swapIndex];
+            exercises[swapIndex] = exercises[i];
+            exercises[i] = e;
+            swapIndex--;
+          }
+          i--;
+        }
+        return exercises;
       };
       return AbExerciseCollection;
     })();

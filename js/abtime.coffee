@@ -66,7 +66,34 @@ $(document).ready ->
           exercisesChosen[randPick]++
         else if exercisesChosen[randomExerciseName] < r
           exercises.remove(randomExercise)
-      randomExercises
+      @move_exercise_type_to_end(randomExercises, "plank")
+
+    ###
+    # move_exercise_type_to_end
+    #
+    # @param exercises array of exercise models
+    # @param type string type of exercise to move to the end
+    #
+    # @return exercises array with all exercises of the given type moved to the end
+    ###
+    move_exercise_type_to_end : (exercises, type) =>
+      swapIndex = exercises.length - 1
+      while exercises[swapIndex].get("type") is type
+        swapIndex--
+
+      i = swapIndex
+      while i > -1
+        if exercises[i].get("type") is type
+          e = exercises[swapIndex]
+          exercises[swapIndex] = exercises[i]
+          exercises[i] = e
+          swapIndex--
+        i--
+      exercises
+
+
+
+
 
   ###
   # AudioView
