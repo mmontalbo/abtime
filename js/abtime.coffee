@@ -172,26 +172,30 @@ $(document).ready ->
 
     render: =>
       tmpl = '''
-				     <div class="row">
+              <div class="row exerciseTitle">
   					   <div class="span16">
     					   <h2 class="currentExcercise"><%= ex %></h2>
   					   </div>
-				      </div>
-				      <div class="row" id="clock">
-              '''
+              </div>
+             '''
+
+      clock_tmpl = "<div class='row' id='clock'>"
+
       if @secs_left > 10
         clock_tmpl = '''
-                     <div class="span8 offset4">
+                     <div class="span8 offset4 clock">
                        0:<span class="timerSeconds"><%= secs_left %></span>
                      </div>
                    '''
       else
         clock_tmpl = '''
-                     <div class="span8 offset4">
+                     <div class="span8 offset4 clock">
                         <span class="timerSeconds lastTenSeconds"><%= secs_left %></span>
                      </div>
                      '''
-      tmpl = tmpl + clock_tmpl + '</div>'
+      clock_tmpl = clock_tmpl + "</div>"
+
+      tmpl = clock_tmpl + tmpl
       @ab_exercise_view = _.template(tmpl)
       $(@el.find("div#exercise").html(@ab_exercise_view({ ex : @current_exercise, secs_left : @secs_left })))
       @
@@ -249,6 +253,7 @@ $(document).ready ->
       @timelineHTML = ""
       for ex in @workoutExercises
         @timelineHTML = @timelineHTML + "<div class='exercise "+@exerciseColors[ex.get('type')]+"'>" + ex.get('name') + "</div>"
+        #@timelineHTML = @timelineHTML + "<div class='exercise "+@exerciseColors[ex.get('type')]+"'>" + "</div>"
 
       @timelineHTML = "<div class='span16'>"+@timelineHTML+"</div>"
 

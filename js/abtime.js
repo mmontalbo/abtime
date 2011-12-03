@@ -247,13 +247,15 @@
       };
       AbExerciseView.prototype.render = function() {
         var clock_tmpl, tmpl;
-        tmpl = '<div class="row">\n  					   <div class="span16">\n    					   <h2 class="currentExcercise"><%= ex %></h2>\n  					   </div>\n </div>\n <div class="row" id="clock">';
+        tmpl = '              <div class="row exerciseTitle">\n<div class="span16">\n    					   <h2 class="currentExcercise"><%= ex %></h2>\n</div>\n              </div>';
+        clock_tmpl = "<div class='row' id='clock'>";
         if (this.secs_left > 10) {
-          clock_tmpl = '<div class="span8 offset4">\n  0:<span class="timerSeconds"><%= secs_left %></span>\n</div>';
+          clock_tmpl = '<div class="span8 offset4 clock">\n  0:<span class="timerSeconds"><%= secs_left %></span>\n</div>';
         } else {
-          clock_tmpl = '<div class="span8 offset4">\n   <span class="timerSeconds lastTenSeconds"><%= secs_left %></span>\n</div>';
+          clock_tmpl = '<div class="span8 offset4 clock">\n   <span class="timerSeconds lastTenSeconds"><%= secs_left %></span>\n</div>';
         }
-        tmpl = tmpl + clock_tmpl + '</div>';
+        clock_tmpl = clock_tmpl + "</div>";
+        tmpl = clock_tmpl + tmpl;
         this.ab_exercise_view = _.template(tmpl);
         $(this.el.find("div#exercise").html(this.ab_exercise_view({
           ex: this.current_exercise,
