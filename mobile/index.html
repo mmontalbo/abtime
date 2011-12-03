@@ -1,8 +1,8 @@
 <html>
+<meta name = "viewport" content = "initial-scale = 1, user-scalable = no">
 
 <head>
 
-	<meta name="viewport" content="width=320,user-scalable=false" />
 
 	<script	src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 	<script type="text/javascript" src="js/jquery.timers-1.2.js"></script>
@@ -12,28 +12,41 @@
     <style>
 
 		div.container {
+            width:320px;
+			margin:0 auto;
+			background-color:rgba(0,0,0,0.37);
+			box-shadow: 0 0 8px 8px rgba(0,0,0,0.37);
+			border-radius:15px;
+			color:#ffffcc;
+			padding:0;
+			height:100%;
 		}
 
 		body {
-			opacity:1;
 			background-color:white;
-			font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+			font-family:Georgia;
+			//font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 			font-size:21px;
-			line-height:28px;
+			line-height:21px;
+            padding:0;margin:0;
+
+			opacity:1;
+			background:url('media/bg/bg_2.jpg') no-repeat center center fixed;
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
+			 background-size: cover;
 		}
 
 		div#header {
-			padding:15px 0;
-			border-radius: 5px;
+			padding:15px 0 15px 0;
 			position:relative;
-			background-color:black;
+			margin:0 8px;
 		}
 
 		h1 {
-			color:white;
-			font-size:21px;
-			line-height:21px;
 			padding:0; margin:0 0 17px 3px;
+			text-align:center;
 		}
 
 		div#excerciseInProgress{
@@ -41,73 +54,105 @@
 		}
 
 		h2 {
-			
+			font-size:21px;
+			line-height:21px;
+			padding:0; margin:0 0 17px 3px;
 		}
 
 		div.clock{
 			font-size:67px;
 			line-height:67px;
 			width:150px;
-			margin:25px auto 0 auto;
+			margin:0px auto 0 auto;
 			display:block;
 			font-weight:bold;
 			text-align:center;
+			font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 		}
 		
 		div#controls {
-
+            width:320px;
+			margin:0 auto;
+			padding-bottom:25px;
 		}
 
 		div#controls input[type=button] {
 			width:95%;
 			display:block;
-			margin:10px auto;
-			background-color:#777;
+			margin:10px auto 0 auto;
 			height:50px;
-			color:white;
+			color:#ffffcc;
 			font-size:21px;
 			font-weight:bold;
 			border-radius:18px;
-		}
-
-		div.exercise {
-			width:9%;
-			margin:0 0.5%;
-			overflow:hidden;
-			float:left;
-			height:15px;
-			border-radius:7px;
-			opacity:0.25;
-			border:0px;
-			color:rgba(0,0,0,0);
+			background-color:rgba(0,0,0,0);
+			border:1px solid #ffffcc;
 		}
 		
-		div.exerciseComplete {
+		div#controls input[type=button]:active {
+			background-color:rgba(0,0,0,0.37);
+		}
+
+        ul.workoutBar {
+           width:100%;
+           padding:0;
+		   margin:0 0 3px 0;
+       }
+
+		li.exercise {
+            width:10%;
+			overflow:hidden;
+			height:32px;
+			color:rgba(0,0,0,0);
+            display:inline-block;
+			font-size:1px;
+			padding:0;margin:0;
+			-moz-box-shadow: inset 2px 0px 0px 3px rgba(255,255,204,1);
+			-webkit-box-shadow: inset 2px 0px 0px 3px rgba(255,255,204,1);
+			box-shadow: inset 0px 0px 0px 7px rgba(255,255,204,1);
+		    opacity:0.37;
+		}
+		
+		li:first-child {
+			border-radius:15px 0 0 15px;
+			border-right:0px;border-left:0px;
+		}
+		li:last-child{
+			border-radius:0px 15px 15px 0px;
+			border-right:0px;border-left:0px;
+		}
+
+        div.bubble{
+			display:none;
+		}
+		
+		li.exerciseComplete {
 			opacity:1;
 		}
 		
 		div.exerciseTitle {
-			text-indent:15px;
+			text-align:center;
 			margin: 0 10px;
-			line-height:28px;
+			line-height:33px;
+			text-decoration:underline;
 		}
 
-        div.orange {
+        .orange{
            background-color: #FF8807;
            color: #FF8807;
         }
 
-        div.red {
+        .red{
            background-color: #FF0713;
            color: #FF0713;
         }
 
-        div.blue {
+        .blue{
            background-color: #11BDFF;
            color: #11BDFF;
         }
 
-        div.green {
+        .green{
            background-color: #40C332;
            color: #40C332;
         }
@@ -116,9 +161,6 @@
 		}
 
 		div#timeline{
-			position:absolute;
-			bottom:0;
-			padding-bottom:8px;
 		}
 		
 		div#timeline div{
@@ -149,6 +191,8 @@
 			display:block;
 			margin-left:25px;
 			margin-right:25px;
+			font-size:0.8em;
+			text-indent:15px;
 		}
     </style>
 	</head>
@@ -165,11 +209,11 @@
 			</div>
 			<div class="view" id="view_splashPage">
 			  	<div id="exercise">
-				<div class="row">
-					<div class="span16">
-						<h2>Press start.</h2>
-					</div>	
-				</div>
+					<div class="row">
+						<div class="span16">
+							<h2></h2>
+						</div>	
+					</div>
 				</div>
 			</div>
 			<div class="view" id="view_exercisePage">
@@ -196,9 +240,8 @@
 						<source src="media/end.ogg"/>
 				</audio>
 			</div>
-
-		</div>
-		<div class="span6" id="controls">
+			<div class="span6" id="controls">
+			</div>
 		</div>
 	</body>
 
