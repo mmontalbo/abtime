@@ -124,6 +124,9 @@
           # @param exercises array of exercise models
           # @param type string type of exercise to move to the end
           #
+          # Moves all exercises of the given type to the end of the array by iterating
+          # backwards through the array, swapping type exercises with the non-type exercises.
+          #
           # @return exercises array with all exercises of the given type moved to the end
           */
       AbExerciseCollection.prototype.move_exercise_type_to_end = function(exercises, type) {
