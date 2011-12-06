@@ -23,7 +23,7 @@
 		}
 
 		body {
-			background-color:white;
+			background-color:black;
 			font-family:Georgia;
 			//font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
 			font-size:21px;
@@ -176,8 +176,9 @@
 		}
 		
 		video {
-			display:none;
-			margin:25px auto 0 auto;
+			display:block;
+			width:100%;
+			margin:0 auto 15px auto;
 			border:2px solid #777;
 			background-color: #777;
 			border-radius:5px;
@@ -185,6 +186,12 @@
 		}
 		
 		div#exercise_video {
+			width:100%;
+		}
+		
+		div#exercise_video img {
+			margin:0 auto;
+			display:block;
 		}
 		
 		span.exerciseDescription {
@@ -238,6 +245,9 @@
 			    </audio><audio id="end" preload="auto">
 						<source src="media/end.mp3"/>
 						<source src="media/end.ogg"/>
+				</audio><audio id="end" preload="auto">
+						<source src="media/tick.mp3"/>
+						<source src="media/tick.ogg"/>
 				</audio>
 			</div>
 			<div class="span6" id="controls">

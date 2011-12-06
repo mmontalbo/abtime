@@ -81,12 +81,16 @@ $(document).ready ->
     initialize:->
       @startSound = @el.find('audio').get(0)
       @endSound = @el.find('audio').get(1)
+      @tickSound = @el.find('audio').get(2)
       @
     play:->
       @startSound.play()
 
     end:->
       @endSound.play()
+
+    tick:->
+      @tickSound.play()
 
 
   ###
@@ -130,15 +134,19 @@ $(document).ready ->
 
       if @current_video == ""
         tmpl = '''
-              <span class="exerciseDescription"><%= text %></span>
-             '''
+                <span class="exerciseDescription"><%= text %></span>
+               '''
+      else if true #check if mobile browser or not
+        tmpl = '''
+          		  <img src="media/<%= vid %>.gif" />
+               '''
       else
         tmpl = '''
-                <video autoplay loop onended="this.play()">
-        				  <source src="media/<%= vid %>.webm" type="video/webm" />
-                  <source src="media/<%= vid %>.m4v" type="video/m4v" />
-        				  Your browser does not support the video tag. Please upgrade your browser.
-        				</video>
+                  <video autoplay loop onended="this.play()">
+          				  <source src="media/<%= vid %>.webm" type="video/webm" />
+                    <source src="media/<%= vid %>.m4v" type="video/m4v" />
+          				  Your browser does not support the video tag. Please upgrade your browser.
+          				</video>
                '''
       @exercise_video = _.template(tmpl)
       $(@el.find("div#exercise_video").html(@exercise_video({ vid : @current_video, text : @current_description})))
@@ -189,6 +197,9 @@ $(document).ready ->
       @secs_left--
       if @secs_left is 0
         @trigger("exercise_countdown_complete")
+      else if @secs_left < 4 and @secs_left > 0
+        @trigger("exercise_countdown_almost_complete")
+        @render()
       else
         @render()
 
@@ -287,6 +298,30 @@ $(document).ready ->
       @render_btn()
       @
 
+
+  ###
+  # WallpaperView
+  #
+  # Assigns and controls the wallpaper (aka background image)
+  ###
+
+  class WallpaperView extends Backbone.View
+
+    el : $ ('body')
+
+    initialize: ->
+      @setRandomWallpaper()
+      @render
+
+    render: ->
+      @
+
+    setRandomWallpaper: ->
+      rand = Math.ceil(Math.random() * 21)
+      cssBGProperty = "url('media/bg/bg_"+rand+".jpg') no-repeat center center fixed"
+      @el.css("background",cssBGProperty)
+      @
+
   ###
   # AbTimeApp
   #
@@ -301,6 +336,7 @@ $(document).ready ->
       @abExerciseCollection.fetch()
       @currentIndex = 0
       @audioView = new AudioView()
+      @wallpaperView = new WallpaperView()
 
     populate_views: =>
       @startStopButton = new StartStopButtonView(el : $('#controls'))
@@ -320,6 +356,8 @@ $(document).ready ->
       # Set up event binding
       @abExerciseView.bind('intro_animation_end', @start_workout_countdown)
       @abExerciseView.bind('exercise_countdown_complete', @exercise_countdown_complete)
+
+      @abExerciseView.bind('exercise_countdown_almost_complete', @exercise_countdown_play_sound)
 
       # Put app into initial view state
       @workoutProgressView.el.hide()
@@ -347,6 +385,8 @@ $(document).ready ->
     start_workout_countdown: =>
       @workoutProgressView.render_increment_progress(@currentIndex)
       $(document).everyTime("1s","workoutCountdown",@abExerciseView.tick_countdown)
+    exercise_countdown_play_sound: =>
+      @audioView.tick()
     exercise_countdown_complete: =>
       @currentIndex++
       if @currentIndex < NUM_EXERCISES_IN_WORKOUT

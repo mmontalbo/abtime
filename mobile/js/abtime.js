@@ -19,7 +19,7 @@
     }
   };
   $(document).ready(function() {
-    var AbExerciseCollection, AbExerciseView, AbTimeApp, AudioView, NUM_EXERCISES_IN_WORKOUT, NUM_FLASHES_ON_INTRO, StartStopButtonView, WorkoutProgressView;
+    var AbExerciseCollection, AbExerciseView, AbTimeApp, AudioView, NUM_EXERCISES_IN_WORKOUT, NUM_FLASHES_ON_INTRO, StartStopButtonView, WallpaperView, WorkoutProgressView;
     NUM_EXERCISES_IN_WORKOUT = 10;
     NUM_FLASHES_ON_INTRO = 3;
     /*
@@ -134,6 +134,7 @@
       AudioView.prototype.initialize = function() {
         this.startSound = this.el.find('audio').get(0);
         this.endSound = this.el.find('audio').get(1);
+        this.tickSound = this.el.find('audio').get(2);
         return this;
       };
       AudioView.prototype.play = function() {
@@ -141,6 +142,9 @@
       };
       AudioView.prototype.end = function() {
         return this.endSound.play();
+      };
+      AudioView.prototype.tick = function() {
+        return this.tickSound.play();
       };
       return AudioView;
     })();
@@ -210,8 +214,10 @@
         this.render_intro_animation();
         if (this.current_video === "") {
           tmpl = '<span class="exerciseDescription"><%= text %></span>';
+        } else if (true) {
+          tmpl = '<img src="media/<%= vid %>.gif" />';
         } else {
-          tmpl = '                <video autoplay loop onended="this.play()">\n  <source src="media/<%= vid %>.webm" type="video/webm" />\n                  <source src="media/<%= vid %>.m4v" type="video/m4v" />\n  Your browser does not support the video tag. Please upgrade your browser.\n</video>';
+          tmpl = '                  <video autoplay loop onended="this.play()">\n  <source src="media/<%= vid %>.webm" type="video/webm" />\n                    <source src="media/<%= vid %>.m4v" type="video/m4v" />\n  Your browser does not support the video tag. Please upgrade your browser.\n</video>';
         }
         this.exercise_video = _.template(tmpl);
         return $(this.el.find("div#exercise_video").html(this.exercise_video({
@@ -248,6 +254,9 @@
         this.secs_left--;
         if (this.secs_left === 0) {
           return this.trigger("exercise_countdown_complete");
+        } else if (this.secs_left < 4 && this.secs_left > 0) {
+          this.trigger("exercise_countdown_almost_complete");
+          return this.render();
         } else {
           return this.render();
         }
@@ -361,6 +370,33 @@
       return StartStopButtonView;
     })();
     /*
+      # WallpaperView
+      #
+      # Assigns and controls the wallpaper (aka background image)
+      */
+    WallpaperView = (function() {
+      __extends(WallpaperView, Backbone.View);
+      function WallpaperView() {
+        WallpaperView.__super__.constructor.apply(this, arguments);
+      }
+      WallpaperView.prototype.el = $('body');
+      WallpaperView.prototype.initialize = function() {
+        this.setRandomWallpaper();
+        return this.render;
+      };
+      WallpaperView.prototype.render = function() {
+        return this;
+      };
+      WallpaperView.prototype.setRandomWallpaper = function() {
+        var cssBGProperty, rand;
+        rand = Math.ceil(Math.random() * 21);
+        cssBGProperty = "url('media/bg/bg_" + rand + ".jpg') no-repeat center center fixed";
+        this.el.css("background", cssBGProperty);
+        return this;
+      };
+      return WallpaperView;
+    })();
+    /*
       # AbTimeApp
       #
       # Main application logic responsible for intializing collection and views
@@ -373,6 +409,7 @@
         this.stop_workout = __bind(this.stop_workout, this);
         this.stop_workout_countdown = __bind(this.stop_workout_countdown, this);
         this.exercise_countdown_complete = __bind(this.exercise_countdown_complete, this);
+        this.exercise_countdown_play_sound = __bind(this.exercise_countdown_play_sound, this);
         this.start_workout_countdown = __bind(this.start_workout_countdown, this);
         this.start_workout_intro = __bind(this.start_workout_intro, this);
         this.start_workout = __bind(this.start_workout, this);
@@ -385,7 +422,8 @@
         this.abExerciseCollection.bind("reset", this.populate_views);
         this.abExerciseCollection.fetch();
         this.currentIndex = 0;
-        return this.audioView = new AudioView();
+        this.audioView = new AudioView();
+        return this.wallpaperView = new WallpaperView();
       };
       AbTimeApp.prototype.populate_views = function() {
         this.startStopButton = new StartStopButtonView({
@@ -406,6 +444,7 @@
         });
         this.abExerciseView.bind('intro_animation_end', this.start_workout_countdown);
         this.abExerciseView.bind('exercise_countdown_complete', this.exercise_countdown_complete);
+        this.abExerciseView.bind('exercise_countdown_almost_complete', this.exercise_countdown_play_sound);
         this.workoutProgressView.el.hide();
         return this.abExerciseView.el.hide();
       };
@@ -435,6 +474,9 @@
       AbTimeApp.prototype.start_workout_countdown = function() {
         this.workoutProgressView.render_increment_progress(this.currentIndex);
         return $(document).everyTime("1s", "workoutCountdown", this.abExerciseView.tick_countdown);
+      };
+      AbTimeApp.prototype.exercise_countdown_play_sound = function() {
+        return this.audioView.tick();
       };
       AbTimeApp.prototype.exercise_countdown_complete = function() {
         this.currentIndex++;
