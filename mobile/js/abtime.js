@@ -19,7 +19,7 @@
     }
   };
   $(document).ready(function() {
-    var AbExerciseCollection, AbExerciseView, AbTimeApp, AudioView, NUM_EXERCISES_IN_WORKOUT, NUM_FLASHES_ON_INTRO, StartStopButtonView, WallpaperView, WorkoutProgressView;
+    var AbExerciseCollection, AbExerciseView, AbTimeApp, AudioView, NUM_EXERCISES_IN_WORKOUT, NUM_FLASHES_ON_INTRO, StartStopButtonView, SummaryView, WallpaperView, WorkoutProgressView;
     NUM_EXERCISES_IN_WORKOUT = 10;
     NUM_FLASHES_ON_INTRO = 3;
     /*
@@ -32,6 +32,9 @@
     AbExerciseCollection = (function() {
       __extends(AbExerciseCollection, Backbone.Collection);
       function AbExerciseCollection() {
+        this.move_exercise_type_to_end = __bind(this.move_exercise_type_to_end, this);
+        this.get_random_exercises = __bind(this.get_random_exercises, this);
+        this.get_exercises = __bind(this.get_exercises, this);
         this.get_random_exercises = __bind(this.get_random_exercises, this);
         this.get_exercises = __bind(this.get_exercises, this);
         AbExerciseCollection.__super__.constructor.apply(this, arguments);
@@ -39,6 +42,52 @@
       AbExerciseCollection.prototype.url = 'js/exercises.json';
       AbExerciseCollection.prototype.defaults = {
         'secs_in_countdown': 30
+      };
+      /*
+          # get_exercises
+          #
+          # @param n int, number of exercises to return
+          #
+          # @return n exercises, repeating if the collection contains
+          # less than n elements. If the collection contains no elements,
+          # an empty list is returned.
+          */
+      AbExerciseCollection.prototype.get_exercises = function(n) {
+        var exercises, i;
+        if (n == null) {
+          n = NUM_EXERCISES_IN_WORKOUT;
+        }
+        if (n <= 0 || this.length === 0) {
+          return [];
+        }
+        return exercises = (function() {
+          var _ref, _results;
+          _results = [];
+          for (i = 0, _ref = n - 1; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
+            _results.push(this.at(i % this.length));
+          }
+          return _results;
+        }).call(this);
+      };
+      /*
+          # get_random_exercises
+          #
+          # @param n int, number of exercises to return
+          # @param r int, maximum number of times an exercise should repeat
+          #
+          # @return n random exercises, with exercises repeating at most r
+          # times throughout the workout
+          */
+      AbExerciseCollection.prototype.get_random_exercises = function(n, r) {
+        if (n == null) {
+          n = NUM_EXERCISES_IN_WORKOUT;
+        }
+        if (r == null) {
+          r = 1;
+        }
+        if (n <= 0) {
+          return [];
+        }
       };
       /*
           # get_exercises
@@ -116,7 +165,36 @@
             exercises.remove(randomExercise);
           }
         }
-        return randomExercises;
+        return this.move_exercise_type_to_end(randomExercises, "plank");
+      };
+      /*
+          # move_exercise_type_to_end
+          #
+          # @param exercises array of exercise models
+          # @param type string type of exercise to move to the end
+          #
+          # Moves all exercises of the given type to the end of the array by iterating
+          # backwards through the array, swapping type exercises with the non-type exercises.
+          #
+          # @return exercises array with all exercises of the given type moved to the end
+          */
+      AbExerciseCollection.prototype.move_exercise_type_to_end = function(exercises, type) {
+        var e, i, swapIndex;
+        swapIndex = exercises.length - 1;
+        while (exercises[swapIndex].get("type") === type) {
+          swapIndex--;
+        }
+        i = swapIndex;
+        while (i > -1) {
+          if (exercises[i].get("type") === type) {
+            e = exercises[swapIndex];
+            exercises[swapIndex] = exercises[i];
+            exercises[i] = e;
+            swapIndex--;
+          }
+          i--;
+        }
+        return exercises;
       };
       return AbExerciseCollection;
     })();
@@ -262,6 +340,31 @@
         }
       };
       return AbExerciseView;
+    })();
+    /*
+      # SummaryView
+      #
+      # Creates a view that summarizes the workout
+      */
+    SummaryView = (function() {
+      __extends(SummaryView, Backbone.View);
+      function SummaryView() {
+        SummaryView.__super__.constructor.apply(this, arguments);
+      }
+      SummaryView.prototype.initialize = function() {
+        this.workoutExercises = this.options.exercises;
+        return this.render();
+      };
+      SummaryView.prototype.render = function() {
+        var tmpl;
+        tmpl = '<h2>Another abtime in the books!</h2>\n              <ul id="exercisesCompleted">\n              <% _.each(exercises, function(ex){ %> <li> <%= ex.get("name") %> </li> <% }); %>\n              </ul>';
+        this.workoutSummaryView = _.template(tmpl);
+        $(this.el.html(this.workoutSummaryView({
+          exercises: this.workoutExercises
+        })));
+        return this;
+      };
+      return SummaryView;
     })();
     /*
       # WorkoutProgressView
@@ -442,11 +545,16 @@
         this.abExerciseView = new AbExerciseView({
           el: $('#view_exercisePage')
         });
+        this.workoutSummaryView = new SummaryView({
+          el: $('#view_summaryPage'),
+          exercises: this.exercises
+        });
         this.abExerciseView.bind('intro_animation_end', this.start_workout_countdown);
         this.abExerciseView.bind('exercise_countdown_complete', this.exercise_countdown_complete);
         this.abExerciseView.bind('exercise_countdown_almost_complete', this.exercise_countdown_play_sound);
         this.workoutProgressView.el.hide();
-        return this.abExerciseView.el.hide();
+        this.abExerciseView.el.hide();
+        return this.workoutSummaryView.el.hide();
       };
       AbTimeApp.prototype.start_workout = function() {
         if (this.currentIndex === 0) {
@@ -454,6 +562,7 @@
           this.abExerciseView.reset_view();
           this.startStopButton.el.hide();
           $("div#view_splashPage").hide();
+          this.workoutSummaryView.el.hide();
           this.abExerciseView.el.show();
           this.audioView.play();
           return setTimeout(this.start_workout_intro, 3000);
@@ -494,12 +603,16 @@
         return this.stop_workout();
       };
       AbTimeApp.prototype.stop_workout = function() {
-        this.currentIndex = 0;
-        $("h1").show();
         $(document).stopTime("workoutCountdown");
         this.populate_workout_views();
-        $("div#view_splashPage").show();
-        return this.abExerciseView.reset_view();
+        this.abExerciseView.reset_view();
+        if (this.currentIndex === NUM_EXERCISES_IN_WORKOUT) {
+          this.workoutSummaryView.el.show();
+        } else {
+          $("h1").show();
+          $("div#view_splashPage").show();
+        }
+        return this.currentIndex = 0;
       };
       return AbTimeApp;
     })();

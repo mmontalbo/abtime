@@ -49,6 +49,33 @@ $(document).ready ->
       if n <= 0
         return []
 
+    ###
+    # get_exercises
+    #
+    # @param n int, number of exercises to return
+    #
+    # @return n exercises, repeating if the collection contains
+    # less than n elements. If the collection contains no elements,
+    # an empty list is returned.
+    ###
+    get_exercises : (n = NUM_EXERCISES_IN_WORKOUT) =>
+      if n <= 0 or @length is 0
+        return []
+      exercises = (@at(i % @length) for i in [0..n-1])
+
+    ###
+    # get_random_exercises
+    #
+    # @param n int, number of exercises to return
+    # @param r int, maximum number of times an exercise should repeat
+    #
+    # @return n random exercises, with exercises repeating at most r
+    # times throughout the workout
+    ###
+    get_random_exercises : (n = NUM_EXERCISES_IN_WORKOUT, r = 1) =>
+      if n <= 0
+        return []
+
       exercises = (m for m in @models)
       exercisesChosen = {}
       randomExercises = []
@@ -66,8 +93,33 @@ $(document).ready ->
           exercisesChosen[randPick]++
         else if exercisesChosen[randomExerciseName] < r
           exercises.remove(randomExercise)
-      randomExercises
+      @move_exercise_type_to_end(randomExercises, "plank")
 
+    ###
+    # move_exercise_type_to_end
+    #
+    # @param exercises array of exercise models
+    # @param type string type of exercise to move to the end
+    #
+    # Moves all exercises of the given type to the end of the array by iterating
+    # backwards through the array, swapping type exercises with the non-type exercises.
+    #
+    # @return exercises array with all exercises of the given type moved to the end
+    ###
+    move_exercise_type_to_end : (exercises, type) =>
+      swapIndex = exercises.length - 1
+      while exercises[swapIndex].get("type") is type
+        swapIndex--
+
+      i = swapIndex
+      while i > -1
+        if exercises[i].get("type") is type
+          e = exercises[swapIndex]
+          exercises[swapIndex] = exercises[i]
+          exercises[i] = e
+          swapIndex--
+        i--
+      exercises
   ###
   # AudioView
   #
@@ -202,6 +254,28 @@ $(document).ready ->
         @render()
       else
         @render()
+
+
+  ###
+  # SummaryView
+  #
+  # Creates a view that summarizes the workout
+  ###
+  class SummaryView extends Backbone.View
+    initialize: ->
+      @workoutExercises = @options.exercises
+      @render()
+
+    render: ->
+      tmpl = '''
+				     <h2>Another abtime in the books!</h2>
+              <ul id="exercisesCompleted">
+              <% _.each(exercises, function(ex){ %> <li> <%= ex.get("name") %> </li> <% }); %>
+              </ul>
+             '''
+      @workoutSummaryView = _.template(tmpl)
+      $(@el.html(@workoutSummaryView({exercises: @workoutExercises})))
+      @
 
   ###
   # WorkoutProgressView
@@ -348,10 +422,11 @@ $(document).ready ->
       @populate_workout_views()
 
     populate_workout_views: =>
-      # Initialize views an get set of exercises
+      # Initialize views and get set of exercises
       @exercises = @abExerciseCollection.get_random_exercises()
       @workoutProgressView = new WorkoutProgressView(el: $('#timeline'), exercises : @exercises)
       @abExerciseView = new AbExerciseView(el: $('#view_exercisePage'))
+      @workoutSummaryView = new SummaryView(el: $('#view_summaryPage'), exercises: @exercises)
 
       # Set up event binding
       @abExerciseView.bind('intro_animation_end', @start_workout_countdown)
@@ -362,6 +437,7 @@ $(document).ready ->
       # Put app into initial view state
       @workoutProgressView.el.hide()
       @abExerciseView.el.hide()
+      @workoutSummaryView.el.hide()
 
     start_workout: =>
       if (@currentIndex is 0)
@@ -369,6 +445,7 @@ $(document).ready ->
         @abExerciseView.reset_view()
         @startStopButton.el.hide()
         $("div#view_splashPage").hide()
+        @workoutSummaryView.el.hide()
         @abExerciseView.el.show()
         @audioView.play()
         setTimeout @start_workout_intro, 3000
@@ -400,11 +477,18 @@ $(document).ready ->
       @startStopButton.toggle_btn_state()
       @stop_workout()
     stop_workout: =>
-      @currentIndex = 0
-      $("h1").show();
       $(document).stopTime("workoutCountdown")
       @populate_workout_views()
-      $("div#view_splashPage").show()
       @abExerciseView.reset_view()
+
+      if @currentIndex == NUM_EXERCISES_IN_WORKOUT
+        @workoutSummaryView.el.show()
+      else
+        $("h1").show();
+        $("div#view_splashPage").show()
+
+      @currentIndex = 0
+
+
 
   window.app = new AbTimeApp
