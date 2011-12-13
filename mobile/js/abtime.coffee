@@ -275,8 +275,15 @@ $(document).ready ->
              '''
       @workoutSummaryView = _.template(tmpl)
       $(@el.html(@workoutSummaryView({exercises: @workoutExercises})))
-      @
 
+      credits = '''
+              <h3>Shot and directed by: <a href="http://www.imdb.com/name/nm0158432/" target="_blank" >Tony Chui</a></h3>
+        			<h3>Exercise model #1 (red belt): <a href="mailto:missnayda@gmail.com">Nayda Lebron</a></h3>
+        			<h3>Exercise model #2 (pink top): <a href="http://www.fabiennemaurer.com" target="_blank" >Fabienne Maurer</a></h3>
+          		<h3>Exercise model #3 (black top): <a href="http://www.brendanicolewalsh.com" target="_blank" >Brenda Nicole Walsh</a></h3>
+                '''
+      $(@el.append(credits))
+      @
   ###
   # WorkoutProgressView
   #

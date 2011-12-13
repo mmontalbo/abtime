@@ -356,12 +356,14 @@
         return this.render();
       };
       SummaryView.prototype.render = function() {
-        var tmpl;
+        var credits, tmpl;
         tmpl = '<h2>Another abtime in the books!</h2>\n              <ul id="exercisesCompleted">\n              <% _.each(exercises, function(ex){ %> <li> <%= ex.get("name") %> </li> <% }); %>\n              </ul>';
         this.workoutSummaryView = _.template(tmpl);
         $(this.el.html(this.workoutSummaryView({
           exercises: this.workoutExercises
         })));
+        credits = '              <h3>Shot and directed by: <a href="http://www.imdb.com/name/nm0158432/" target="_blank" >Tony Chui</a></h3>\n<h3>Exercise model #1 (red belt): <a href="mailto:missnayda@gmail.com">Nayda Lebron</a></h3>\n<h3>Exercise model #2 (pink top): <a href="http://www.fabiennemaurer.com" target="_blank" >Fabienne Maurer</a></h3>\n          		<h3>Exercise model #3 (black top): <a href="http://www.brendanicolewalsh.com" target="_blank" >Brenda Nicole Walsh</a></h3>';
+        $(this.el.append(credits));
         return this;
       };
       return SummaryView;
