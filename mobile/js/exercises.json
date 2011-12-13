@@ -5,25 +5,19 @@
 	"type":"crunch"
   },
   {
-    "name":"Crunches: reach for your toes, hands to the floor",
-	"video":"",
-	"type":"crunch",
-	"description":"While placing your legs as straight up in the air as possible, reach and touch your toes. After touching, return your hands to the floor above your head. Repeat."
-  },
-  {
     "name":"Reverse crunches",
 	"video":"revcrunches",
 	"type":"crunch"
   },
   {
     "name":"Reverse crunches: with a twist",
-	"video":"",
+	"video":"revcrunchtwist",
 	"type":"crunch",
 	"description":"Start by sitting on your hands, roll your legs up into the air so that they finish straight up but twisted slightly to one side at the hip. Your butt should be off the ground. Return to the ground and alternate by twisting to the other side."
   },
   {
     "name":"Lawn chairs",
-	"video":"",
+	"video":"lawnchair",
 	"type":"lawn_chair",
 	"description":"Laying on your back, hands to your side, bring your knees to your chest while simultaneously raising your torso to meet in the middle. Your hands should be pointing forward. Return to resting position and repeat."
   },
@@ -34,19 +28,19 @@
   },
   {
     "name":"Bikes",
-	"video":"",
+	"video":"bikes",
 	"type":"bikes",
 	"description":"Start with your hands behind your head raised slightly off the floor, your right elbow touching your left knee with your right leg outstretched in front of you. Switch to your left elbow and right knee rapidly."
   },
   {
     "name":"Slow bikes",
-	"video":"",
+	"video":"slowbikes",
 	"type":"bikes",
 	"description":"Start with your hands behind your head raised slightly off the floor, your right elbow touching your left knee with your right leg outstretched in front of you. Switch to your left elbow and right knee one every 3 seconds."
   },
   {
     "name":"Cross-over reaches",
-	"video":"",
+	"video":"crossoverreach",
 	"type":"crossover",
 	"description":"While laying on your back, legs bent at 90 degrees with your feet pointing in opposite corners of the room, alternate reaching for your right toe with your left hand and vice versa."
   },
@@ -57,31 +51,31 @@
   },
   {
     "name":"6-inch holds: pulsating",
-	"video":"",
+	"video":"sixinchpulse",
 	"type":"hold",
 	"description":"lay on your back flat on the ground hands to your side. Raise your shoulders slightly off the ground and your toes 6-inches. Slightly raise your head and toes and additional 1-inch and relax back to 6-inches. Repeat."
   },
   {
     "name":"6-inch holds: feet wide",
-	"video":"",
+	"video":"sixinchholdwide",
 	"type":"hold",
 	"description":"lay on your back, flat on the ground, and hands to your side. Raise your shoulders slightly off the ground and your toes 6-inches. Hold your feet 24-inches apart."
   },
   {
     "name":"Rope climb",
-	"video":"",
+	"video":"ropeclimb",
 	"type":"climb",
 	"description":"While holding your legs in between 90 degrees and 6-inches off the ground, reach for the ceiling as if you were pulling a rope down."
   },
   {
     "name":"Jack knives",
-	"video":"",
+	"video":"jackknife",
 	"type":"jack_knives",
 	"description":"Lay on your back hands above your head. Fold in half as your legs and hands in meet in the middle. Relax back to the floor and repeat."
   },
   {
     "name":"Frogs: 3 seconds",
-	"video":"",
+	"video":"frogs",
 	"type":"frogs",
 	"description":"Hands behind your head, legs at 90 degrees, crunch upward but hold at the top for 3 seconds before relaxing."
   },
@@ -92,13 +86,13 @@
   },
   {
     "name":"Planks: alternating side kicks",
-	"video":"",
+	"video":"planksidekick",
 	"type":"plank",
 	"description":"Hold your self up on your forearms and toes with a straight back. Alternate balancing on one foot and moving the other quickly outwards and back."
   },
   {
     "name":"Planks: alternating vertical kicks",
-	"video":"",
+	"video":"plankvertkick",
 	"type":"plank",
 	"description":"Hold your self up on your forearms and toes with a straight back. Alternate balancing on one foot and moving the other quickly upwards and back."
   }
