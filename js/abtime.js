@@ -64,6 +64,7 @@
           _results = [];
           for (i = 0, _ref = n - 1; 0 <= _ref ? i <= _ref : i >= _ref; 0 <= _ref ? i++ : i--) {
             _results.push(this.at(i % this.length));
+            //this is a test
           }
           return _results;
         }).call(this);
